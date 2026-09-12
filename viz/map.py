@@ -73,10 +73,14 @@ def mask_polygons(mask, grid, smooth=1.0):
     return rings
 
 
-def prob_png(prob, alpha_max=0.85):
-    """Probability raster -> RGBA PNG bytes (colormap from the palette, transparent near zero)."""
-    rgba = (P.PROB_CMAP(np.clip(prob, 0, 1)) * 255).astype(np.uint8)
-    a = np.clip((np.clip(prob, 0, 1) - 0.03) / 0.97, 0, 1) ** 0.6 * alpha_max          # fully transparent below 3 %, so the raster box has no edge
+def prob_png(prob, alpha_max=0.85, upsample=4, floor=0.06):
+    """Probability raster -> RGBA PNG bytes (colormap from the palette, transparent near zero).
+    Upsampled bilinearly so 375 m pixels don't read as blocks; fully transparent below `floor` so faint noise vanishes."""
+    from scipy import ndimage as ndi
+    z = np.clip(np.nan_to_num(prob.astype(np.float32)), 0, 1)
+    if upsample > 1: z = np.clip(ndi.zoom(z, upsample, order=1), 0, 1)
+    rgba = (P.PROB_CMAP(z) * 255).astype(np.uint8)
+    a = np.clip((z - floor) / (1 - floor), 0, 1) ** 0.6 * alpha_max
     rgba[..., 3] = (a * 255).astype(np.uint8)
     buf = io.BytesIO(); Image.fromarray(rgba).save(buf, "PNG"); return buf.getvalue()
 

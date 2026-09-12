@@ -228,7 +228,7 @@ def build_map(events, wind, fuel, panels, placeholder, territory, threshold, net
     for ev in events:
         g = Grid(ev["bbox"], *ev["mask"].shape); rings = mask_polygons(ev["mask"], g)
         if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiPolygon", "coordinates": [[r] for r in rings]}},
-                                 style_function=lambda _: {"color": P.INK_2, "weight": 1.5, "opacity": 0.9, "fillColor": P.INK_2, "fillOpacity": 0.45},
+                                 style_function=lambda _: {"color": P.INK, "weight": 1.5, "opacity": 0.95, "fillColor": "#3a3a37", "fillOpacity": 0.7},
                                  tooltip=f"{ev['name']} · burning {ev['date']} ({ev.get('n_today', '?')} px)").add_to(fg_fire)
     fg_fire.add_to(m)
     fg_prob = folium.FeatureGroup(name=f"Where it spreads in 24 h — the model, growth region only{tag('probs')}", show=True)
