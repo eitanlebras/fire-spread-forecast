@@ -17,7 +17,6 @@ dependencies = [
     "pystac-client",
     "torchvision",
     "rioxarray",
-    "pystac-client",
     "olmoearth-pretrain-minimal",
 ]
 

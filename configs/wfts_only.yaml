@@ -7,9 +7,9 @@ stage: 1
 save_model: false
 model: {width: 32, depth: 3, dropout: 0.1, proj_ch: 0}
 train:
-  batch_size: 64
+  batch_size: 128
   base_lr: 1.0e-3
-  base_batch: 64
+  base_batch: 128
   warmup_steps: 100
   weight_decay: 1.0e-4
   loss: bce
