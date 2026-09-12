@@ -1,10 +1,10 @@
 """Shared colors + matplotlib styling for all figures (light surface only; these are static PNG/GIF outputs).
 
 Categorical slots are assigned in fixed order and never cycled: an arm keeps its color whatever else is on the chart.
-Sequential = one hue (blue), light -> dark. Text always wears ink tokens, never a series color.
+Sequential = one hue (blue), transparent -> dark. Text always wears ink tokens, never a series color.
 """
 import matplotlib
-from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap, to_rgb
 
 SURFACE = "#fcfcfb"
 PAGE = "#f9f9f7"
@@ -19,7 +19,11 @@ BLUE, ORANGE, AQUA, YELLOW = CATEGORICAL[:4]
 
 # blue ramp, steps 100 -> 700
 SEQ_BLUE = ["#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#3987e5", "#2a78d6", "#256abf", "#1c5cab", "#184f95", "#104281", "#0d366b"]
-PROB_CMAP = LinearSegmentedColormap.from_list("fsf_prob", [SURFACE] + SEQ_BLUE)
+# the ramp starts fully transparent (alpha 0 at P = 0) so P ~ 0 shows whatever is underneath instead of a pale blue wash
+PROB_CMAP = LinearSegmentedColormap.from_list("fsf_prob", [(*to_rgb(SEQ_BLUE[0]), 0.0)] + SEQ_BLUE)
+PROB_CMAP_CSS = f"linear-gradient(90deg, rgba({','.join(str(int(255 * c)) for c in to_rgb(SEQ_BLUE[0]))},0), {SEQ_BLUE[3]}, {SEQ_BLUE[-1]})"   # same ramp for HTML legends
+
+WATER = "#a3b8a8"   # grey-green: distinct from the blue probability ramp and from the burn greys
 
 # actual-burn panel: 0 = unburned (surface), 1 = burning yesterday and today (persisted), 2 = newly burning today
 BURN_COLORS = [SURFACE, AXIS, ORANGE]

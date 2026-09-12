@@ -32,12 +32,12 @@ def render_day(scene, prob, today, new, title, out_path, dpi=110, footer=None, c
     r0, r1, c0, c1 = crop or (0, H, 0, W); ext = (c0 * km, c1 * km, r1 * km, r0 * km); sl = (slice(r0, r1), slice(c0, c1))
     fig, ax = plt.subplots(figsize=(9, 9 * (r1 - r0) / (c1 - c0) + 0.8), dpi=dpi)
     ax.imshow(scene.shade[sl], cmap="gray", vmin=0, vmax=1.4, extent=ext)
-    ax.imshow(np.ma.masked_where(~scene.water[sl], scene.water[sl]), cmap=ListedColormap(["#a9c8e8"]), alpha=0.9, extent=ext, interpolation="nearest")
+    ax.imshow(np.ma.masked_where(~scene.water[sl], scene.water[sl]), cmap=ListedColormap([P.WATER]), alpha=0.9, extent=ext, interpolation="nearest")
     ax.imshow(np.ma.masked_where(shown[sl] < 0.06, shown[sl]), cmap=P.PROB_CMAP, vmin=0, vmax=1, alpha=0.85, extent=ext, interpolation="bilinear")
     ax.imshow(np.ma.masked_where(~today[sl], today[sl]), cmap=ListedColormap(["#3a3a37"]), alpha=0.75, extent=ext, interpolation="nearest")
     if new[sl].any(): ax.contour(np.linspace(ext[0], ext[1], c1 - c0), np.linspace(ext[3], ext[2], r1 - r0), new[sl].astype(float), levels=[0.5], colors=[P.ORANGE], linewidths=1.8)
     ax.set_title(title, fontsize=10, loc="left"); ax.set_xlabel("km"); ax.set_ylabel("km")
-    ax.text(0.01, 0.01, footer or "grey = burning today · blue = model P(burn in 24 h), growth region · orange = observed new fire next day · light blue = water", transform=ax.transAxes, fontsize=7, color="#333", va="bottom")
+    ax.text(0.01, 0.01, footer or "grey = burning today · blue = model P(burn in 24 h), growth region · orange = observed new fire next day · grey-green = water", transform=ax.transAxes, fontsize=7, color="#333", va="bottom")
     fig.tight_layout(); fig.savefig(out_path); plt.close(fig)
 
 

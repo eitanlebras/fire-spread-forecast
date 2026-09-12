@@ -118,7 +118,7 @@ def crop_box(prev, cur, H, W, margin=0.2, min_half=40):
 
 def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=None):
     """One frame for day k (1..T-1): forecast for day k | observed day k. Returns an RGB uint8 array.
-    Both panels are cropped to yesterday's fire + today's new fire (+20 %); water (land-cover class 17) is drawn light blue."""
+    Both panels are cropped to yesterday's fire + today's new fire (+20 %); water (land-cover class 17) is drawn grey-green."""
     T, H, W = masks.shape
     prev, cur, prob = masks[k - 1], masks[k], probs[k - 1]
     r0, r1, c0, c1 = crop_box(prev, cur, H, W); water = WATER_MASK.get(name)
@@ -136,7 +136,7 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     axR.imshow(burn, cmap=P.BURN_CMAP, vmin=0, vmax=2, interpolation="nearest")
     if water is not None:
         from matplotlib.colors import ListedColormap
-        for ax in (axL, axR): ax.imshow(np.ma.masked_where(~water, water), cmap=ListedColormap(["#a9c8e8"]), alpha=0.9, interpolation="nearest")
+        for ax in (axL, axR): ax.imshow(np.ma.masked_where(~water, water), cmap=ListedColormap([P.WATER]), alpha=0.9, interpolation="nearest")
     for ax in (axL, axR): ax.set_xlim(c0 - 0.5, c1 - 0.5); ax.set_ylim(r1 - 0.5, r0 - 0.5)
     if prev.any():                                   # yesterday's perimeter: outline of the lightly-smoothed mask, so speckled detections read as one front
         outline = _blur(prev, 2.5)
@@ -147,7 +147,8 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     cb.set_ticks([0, 0.25, 0.5, 0.75, 1]); cax.tick_params(labelsize=8, length=0, colors=P.MUTED)
     handles = [Patch(facecolor=c, edgecolor=P.GRID, label=l) for c, l in zip(P.BURN_COLORS[1:], P.BURN_LABELS[1:])]
     handles.append(Line2D([0], [0], color=P.INK_2, lw=0.9, label="yesterday's perimeter (both panels)"))
-    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(-0.02, -0.02), ncol=3, handlelength=1.0, columnspacing=0.8, handletextpad=0.5, fontsize=7.8, frameon=False)
+    if water is not None and water[r0:r1, c0:c1].any(): handles.append(Patch(facecolor=P.WATER, edgecolor=P.GRID, label="water"))
+    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(-0.02, -0.02), ncol=4, handlelength=1.0, columnspacing=0.8, handletextpad=0.5, fontsize=7.8, frameon=False)
     fig.text(0.03, 0.94, f"{name}   ·   day {k}/{T - 1}   ·   {dates[k]}", fontsize=13, fontweight="bold", color=P.INK)
     stats = f"burning: {int(cur.sum()):,} px   new today: {int((burn == 2).sum()):,} px   forecast made {dates[k - 1]}"
     m = day_auc_pr(prob, cur, prev)

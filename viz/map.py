@@ -79,8 +79,8 @@ def prob_png(prob, alpha_max=0.85, upsample=4, floor=0.06):
     from scipy import ndimage as ndi
     z = np.clip(np.nan_to_num(prob.astype(np.float32)), 0, 1)
     if upsample > 1: z = np.clip(ndi.zoom(z, upsample, order=1), 0, 1)
-    rgba = (P.PROB_CMAP(z) * 255).astype(np.uint8)
-    a = np.clip((z - floor) / (1 - floor), 0, 1) ** 0.6 * alpha_max
+    c = P.PROB_CMAP(z); rgba = (c * 255).astype(np.uint8)
+    a = c[..., 3] * np.clip((z - floor) / (1 - floor), 0, 1) ** 0.6 * alpha_max            # colormap alpha (0 at P = 0) x floor ramp
     rgba[..., 3] = (a * 255).astype(np.uint8)
     buf = io.BytesIO(); Image.fromarray(rgba).save(buf, "PNG"); return buf.getvalue()
 

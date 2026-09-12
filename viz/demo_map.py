@@ -257,7 +257,7 @@ def build_map(events, wind, fuel, panels, placeholder, territory, threshold, net
             f"{' · <b>placeholder fires and wind</b>' if placeholder.get('fire') else ''}</div></div>"
             f"<div style='position:fixed;bottom:22px;left:12px;z-index:1000;background:rgba(252,252,251,.9);padding:5px 9px;border-radius:4px;font:11px system-ui,sans-serif;color:#52514e'>"
             f"public infrastructure data (HIFLD{', placeholder geometry' if placeholder.get('grid') else ''}) · illustrative asset values and vulnerabilities · "
-            f"<span style='display:inline-block;width:70px;height:9px;vertical-align:middle;background:linear-gradient(90deg,{P.SURFACE},{P.SEQ_BLUE[3]},{P.SEQ_BLUE[-1]})'></span> P(burn in 24 h) 0 → 1 · shown within {BUFFER_KM:g} km of today's fire, growth region only</div>")
+            f"<span style='display:inline-block;width:70px;height:9px;vertical-align:middle;background:{P.PROB_CMAP_CSS}'></span> P(burn in 24 h) 0 → 1 · shown within {BUFFER_KM:g} km of today's fire, growth region only</div>")
     m.get_root().html.add_child(folium.Element(html))
     js_groups = {c: [g.get_name() for g in grp] for c, grp in groups.items()}
     js = f"""
