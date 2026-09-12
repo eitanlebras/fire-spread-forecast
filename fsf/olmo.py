@@ -90,7 +90,7 @@ def fire_months(json_path):
 
 def cache_embeddings(s2_root, out_path, model_id="OLMOEARTH_V1_2_SMALL", tile=TILE, patch=PATCH, input_res=10, batch=16, limit=0, device="cuda"):
     enc, D = load_encoder(model_id, device); norm = S2Norm(device); t0 = time.time()
-    paths = sorted(glob.glob(f"{s2_root}/*/fire_*.npy"))
+    paths = sorted(p for p in glob.glob(f"{s2_root}/*/fire_*.npy") if ".partial" not in p)   # skip a killed writer's temp file
     if limit: paths = paths[:limit]
     emb, months_all = {}, {}
     print(f"{model_id}: D={D}, {len(paths)} fires from {s2_root}", flush=True)
