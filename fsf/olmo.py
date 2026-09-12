@@ -40,7 +40,7 @@ class S2Norm:
         from olmoearth_pretrain_minimal.olmoearth_pretrain_v1.utils.constants import Modality
         n = Normalizer(std_multiplier=2.0); z = np.zeros((1, 12), np.float32)
         a = n.normalize(Modality.SENTINEL2_L2A, z); b = n.normalize(Modality.SENTINEL2_L2A, z + 1) - a
-        self.offset = torch.tensor(a[0], device=device); self.scale = torch.tensor(b[0], device=device)
+        self.offset = torch.tensor(a[0], dtype=torch.float32, device=device); self.scale = torch.tensor(b[0], dtype=torch.float32, device=device)
         self.bands = list(Modality.SENTINEL2_L2A.band_order)
     def __call__(self, x): return x * self.scale + self.offset   # (..., 12)
 
