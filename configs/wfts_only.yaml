@@ -1,0 +1,21 @@
+# Arm: WFTS channels only (no OlmoEarth) -- the ablation every OlmoEarth number is read against. Same trainer, same decoder.
+name: wfts_only
+results_dir: /root/fsf/results
+wfts_cache: /root/data/wfts/cache/wfts.pt
+use_olmo: false
+stage: 1
+save_model: false
+model: {width: 32, depth: 3, dropout: 0.1, proj_ch: 0}
+train:
+  batch_size: 64
+  base_lr: 1.0e-3
+  base_batch: 64
+  warmup_steps: 100
+  weight_decay: 1.0e-4
+  loss: bce
+  pos_weight: 3.0
+  augment: true
+  max_epochs: 100
+  eval_every: 2
+  patience: 10
+  compile: false
