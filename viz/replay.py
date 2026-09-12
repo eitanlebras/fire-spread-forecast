@@ -130,7 +130,9 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     for ax in (axL, axR):
         ax.set_xticks([]); ax.set_yticks([])
         for s in ax.spines.values(): s.set_visible(True); s.set_edgecolor(P.GRID)
-    im = axL.imshow(prob, cmap=P.PROB_CMAP, vmin=0, vmax=1, interpolation="nearest")
+    # Growth region only: the model gets yesterday's fire as an input channel, so P inside it is the input echoed back,
+    # not a prediction. Blank it; the outline below still shows where yesterday's fire was.
+    im = axL.imshow(np.ma.masked_where(prev, prob), cmap=P.PROB_CMAP, vmin=0, vmax=1, interpolation="nearest")
     axR.imshow(burn, cmap=P.BURN_CMAP, vmin=0, vmax=2, interpolation="nearest")
     if water is not None:
         from matplotlib.colors import ListedColormap
@@ -139,7 +141,7 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     if prev.any():                                   # yesterday's perimeter: outline of the lightly-smoothed mask, so speckled detections read as one front
         outline = _blur(prev, 2.5)
         for ax in (axL, axR): ax.contour(outline, levels=[0.22], colors=[P.INK_2], linewidths=0.9, alpha=0.85)
-    axL.set_title("Forecast  ·  P(fire on this day), made the day before" + ("   [PLACEHOLDER]" if placeholder else ""))
+    axL.set_title("Forecast  ·  P(new fire on this day), growth region only, made the day before" + ("   [PLACEHOLDER]" if placeholder else ""))
     axR.set_title("Actual  ·  active fire on this day")
     cb = fig.colorbar(im, cax=cax, orientation="horizontal"); cb.outline.set_visible(False)
     cb.set_ticks([0, 0.25, 0.5, 0.75, 1]); cax.tick_params(labelsize=8, length=0, colors=P.MUTED)
