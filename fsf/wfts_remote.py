@@ -1,6 +1,6 @@
 """Pull individual fire directories out of the 48 GB Zenodo zip via HTTP range requests (no full download).
   python -m fsf.wfts_remote list                      -> fires per year
-  python -m fsf.wfts_remote fetch OUT_DIR YEAR [YEAR] -> all fires of those years not already in OUT_DIR
+  python -m fsf.wfts_remote fetch OUT_DIR YEAR [YEAR] [--shard i/k] -> all fires of those years not already in OUT_DIR
 """
 import sys, os, io, zipfile, requests
 
@@ -54,8 +54,10 @@ if __name__ == "__main__":
     if sys.argv[1] == "list":
         for y in sorted(fires): print(y, len(fires[y]), "fires,", sum(len(v) for v in fires[y].values()), "days")
     elif sys.argv[1] == "fetch":
-        out = sys.argv[2]; n_done = 0
-        todo = [(y, f, ms) for y in sys.argv[3:] for f, ms in sorted(fires[y].items()) if not os.path.isdir(f"{out}/{y}/{f}") and len(ms) >= 3]
+        out = sys.argv[2]; n_done = 0; args = sys.argv[3:]; shard = (0, 1)
+        if "--shard" in args: i = args.index("--shard"); shard = tuple(int(v) for v in args[i + 1].split("/")); args = args[:i]
+        todo = [(y, f, ms) for y in args for f, ms in sorted(fires[y].items()) if not os.path.isdir(f"{out}/{y}/{f}") and len(ms) >= 3]
+        todo = todo[shard[0]::shard[1]]
         print(f"fetching {len(todo)} fires ({sum(len(ms) for _,_,ms in todo)} days)", flush=True)
         for y, f, members in todo:
             tmp = f"{out}/{y}/{f}.partial"; os.makedirs(tmp, exist_ok=True)
