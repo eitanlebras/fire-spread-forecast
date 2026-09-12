@@ -17,6 +17,8 @@ dependencies = [
     "pystac-client",
     "torchvision",
     "folium",
+    "shapely>=2",
+    "pyproj",
 ]
 
 [tool.uv]

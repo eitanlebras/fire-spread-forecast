@@ -28,10 +28,8 @@ from PIL import Image
 from viz import palette as P
 from viz.replay import load_fire, placeholder_probs, align_probs
 
-HIFLD = {   # ArcGIS REST endpoints (HIFLD Open); bbox query with f=geojson. Unverified from this machine: pass GeoJSON files if they 404.
-    "transmission": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query",
-    "substations": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Substations/FeatureServer/0/query",
-}
+from viz.exposure import HIFLD as _HIFLD                     # verified endpoints live in viz/exposure.py
+HIFLD = {"transmission": _HIFLD["lines"], "substations": _HIFLD["substations"]}
 DEMO_BBOX = (-121.95, 44.30, -121.55, 44.55)     # W S E N; central Oregon Cascades foothills, for the synthetic demo
 
 # ---------------------------------------------------------------- geometry helpers
@@ -78,7 +76,8 @@ def mask_polygons(mask, grid, smooth=1.0):
 def prob_png(prob, alpha_max=0.85):
     """Probability raster -> RGBA PNG bytes (colormap from the palette, transparent near zero)."""
     rgba = (P.PROB_CMAP(np.clip(prob, 0, 1)) * 255).astype(np.uint8)
-    rgba[..., 3] = (np.clip(prob, 0, 1) ** 0.6 * alpha_max * 255).astype(np.uint8)
+    a = np.clip((np.clip(prob, 0, 1) - 0.03) / 0.97, 0, 1) ** 0.6 * alpha_max          # fully transparent below 3 %, so the raster box has no edge
+    rgba[..., 3] = (a * 255).astype(np.uint8)
     buf = io.BytesIO(); Image.fromarray(rgba).save(buf, "PNG"); return buf.getvalue()
 
 # ---------------------------------------------------------------- placeholder data
