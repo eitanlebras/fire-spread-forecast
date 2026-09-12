@@ -45,6 +45,11 @@ class S2Norm:
     def __call__(self, x): return x * self.scale + self.offset   # (..., 12)
 
 
+def n_bandsets(enc, modality="sentinel2_l2a"):
+    try: return int(enc.patch_embeddings.tokenization_config.get_num_bandsets(modality))
+    except Exception: return 3   # S2 L2A band sets: (B02,B03,B04,B08), (B05,B06,B07,B8A,B11,B12), (B01,B09)
+
+
 def embed(enc, norm, s2, months, years, patch=PATCH, input_res=10, autocast=True):
     """s2 (B,T,12,h,w) float DN with NaN=missing, months (B,T) long 0-11, years (B,T) long
     -> (B, D, h/patch, w/patch) float32: mean of the encoder's unmasked patch tokens over time and band sets."""
@@ -58,6 +63,7 @@ def embed(enc, norm, s2, months, years, patch=PATCH, input_res=10, autocast=True
     missing[missing.flatten(1).all(1)] = False                                 # fully-missing sample: encode zeros rather than nothing
     mask = F.interpolate(missing.float(), scale_factor=patch, mode="nearest").bool().permute(0, 2, 3, 1)   # (B,h,w,T)
     mask = torch.where(mask, MISSING, ONLINE).long()
+    mask = mask[..., None].expand(-1, -1, -1, -1, n_bandsets(enc)).contiguous()   # (B,h,w,T,band_sets): last axis indexed per band set
     ts = torch.stack([torch.full_like(months, 15), months, years], -1)         # (B,T,3) = day, month (0-indexed), year
     sample = MaskedOlmoEarthSample(timestamps=ts, sentinel2_l2a=x, sentinel2_l2a_mask=mask)
     with torch.autocast("cuda", dtype=torch.bfloat16, enabled=autocast):
