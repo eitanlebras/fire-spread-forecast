@@ -10,5 +10,7 @@ exposure story, this fire for the "the model knows where it goes" replay.
 
 Files: `demo_map.html` (same layers as Redding), `exposure_ranked.*` (09-07 forecast, unbuffered raster), `replay.gif` (all 40 forecast days,
 panels cropped to today's fire + new fire with 20% margin, water drawn light blue and verified P=0 on it, 6 s hold on the 2021-09-07 frame
-with the sweep numbers in the header), `replay_hold_day30_forecast_2021-09-07.png` (that frame),
+with growth-region AUC-PR 0.625, 72% overlap and 2.1 km max reach in the header; every frame's stats line shows growth-region AUC-PR against persistence's floor, never the full-mask number), `replay_hold_day30_forecast_2021-09-07.png` (that frame),
 `forecast_dates.json`. Model: `wfts_only` baseline checkpoint; swap via `fsf.predict`.
+
+Note: the baseline never predicts detached spot fires (0 hits on detached new-fire components across every day of both fires, see demo/frames_growth); do not frame any blue lobe as a spot-fire call.
