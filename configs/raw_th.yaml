@@ -1,0 +1,20 @@
+name: ndws12_raw_th
+data_root: /workspace/data/ndws/data
+results_dir: /workspace/fsf/results
+features: ndws12_raw_th
+save_model: false
+model: {width: 32, depth: 3, dropout: 0.1}
+train:
+  batch_size: 512
+  base_lr: 1.0e-3      # lr = base_lr * batch_size / base_batch (linear scaling)
+  base_batch: 64
+  warmup_steps: 100
+  weight_decay: 1.0e-4
+  loss: bce            # bce | dice | bce_dice
+  pos_weight: 3.0
+  augment: true
+  max_epochs: 300
+  eval_every: 5
+  patience: 15         # validation checks without improvement (= 75 epochs)
+  compile: true
+  compile_mode: reduce-overhead

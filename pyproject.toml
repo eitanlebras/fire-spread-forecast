@@ -1,0 +1,27 @@
+[project]
+name = "fire-spread-forecast"
+version = "0.1.0"
+description = "fire-spread-forecast-v1-small: per-pixel next-day wildfire spread probability, OlmoEarth + UNet on NDWS"
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.7",
+    "numpy",
+    "xarray",
+    "zarr<3",
+    "pyarrow",
+    "pandas",
+    "scikit-learn",
+    "pyyaml",
+    "tqdm",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
