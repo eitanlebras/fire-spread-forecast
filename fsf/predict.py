@@ -13,6 +13,7 @@ checkpoints are supported here; OlmoEarth heads need the S2 composites + encoder
 import argparse, glob, json, os, sys, numpy as np, torch, torch.nn.functional as Fn
 import rasterio
 from . import wfts as W
+WATER_CLASS = 17   # authors' land-cover classes 1..17; 17 = "Landcover: Water Bodies"
 from .olmo import OlmoUNet
 from .train_olmo import expand_landcover, N_LANDCOVER
 
@@ -44,6 +45,7 @@ def predict_fire(model, norm, fire_dir, device, batch=8):
     from src.dataloader.utils import get_indices_of_degree_features  # noqa  (authors' code, same as the cache build)
     x = W.preprocess(imgs, means, stds, get_indices_of_degree_features())                    # (T,24,H,W)
     persistence = (np.nan_to_num(imgs[:, -1], nan=0.0) > 0).astype(np.float32)               # today's active fire
+    water = np.nan_to_num(imgs[:, W.LANDCOVER_IDX], nan=0) == WATER_CLASS                     # (T,H,W) per-day land cover; class 17 = water bodies
     T, _, H, W_ = x.shape; ph, pw = (-H) % 32, (-W_) % 32
     probs = np.zeros((T - 1, H, W_), np.float32)
     for i in range(0, T - 1, batch):
@@ -53,6 +55,7 @@ def predict_fire(model, norm, fire_dir, device, batch=8):
         with torch.autocast(device, dtype=torch.bfloat16, enabled=device == "cuda"):
             p = torch.sigmoid(model(xb).float())[:, 0, :H, :W_]
         probs[i:i + len(p)] = p.cpu().numpy()
+    probs[water[1:]] = 0.0                                                                   # no burn probability on water (forecast day's land cover)
     return probs, persistence, dates, profile
 
 
