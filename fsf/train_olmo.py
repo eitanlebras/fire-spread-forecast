@@ -112,6 +112,8 @@ def finish(cfg, seed, S, names, hist, best, best_ep, ep, probs, ys, prevs, T0, t
 
 def load_all(cfg, dev):
     b = torch.load(cfg["wfts_cache"]); fires = b["fires"]; lc = b["landcover_idx"]; names = b["names"][:lc] + [f"landcover_{i + 1}" for i in range(N_LANDCOVER)] + b["names"][lc + 1:]
+    # normalization stats travel with every checkpoint (fsf.predict needs them; without them inference is garbage)
+    cfg["norm"] = {"means": [float(v) for v in b["stats"]["means"]], "stds": [float(v) for v in b["stats"]["stds"]], "landcover_idx": int(lc), "n_landcover": N_LANDCOVER}
     dd = cfg.get("data_device", dev)
     data = {sp: (b[f"x_{sp}"].to(dd), b[f"y_{sp}"].to(dd), b[f"meta_{sp}"]) for sp in ("train", "eval", "test")}
     ecache = torch.load(cfg["emb_cache"]) if cfg.get("use_olmo", True) and cfg.get("emb_cache") else None
