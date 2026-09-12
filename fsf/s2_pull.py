@@ -148,14 +148,14 @@ def composite(items, grid, pool):
     return med, float(np.isfinite(med[0]).mean())
 
 
-def select_scenes(items, t0, t1):
-    """items with t0 <= day < t1, capped to the least-cloudy MAX_SCENES_PER_TILE per MGRS tile."""
+def select_scenes(items, t0, t1, cap=MAX_SCENES_PER_TILE):
+    """items with t0 <= day < t1, capped to the least-cloudy `cap` per MGRS tile."""
     by_tile = {}
     for it in items:
         if t0 <= item_day(it) < t1: by_tile.setdefault(tile_of(it), []).append(it)
     keep = []
     for tile, its in by_tile.items():
-        keep += sorted(its, key=lambda it: it.properties.get("eo:cloud_cover", 100))[:MAX_SCENES_PER_TILE]
+        keep += sorted(its, key=lambda it: it.properties.get("eo:cloud_cover", 100))[:cap]
     return keep
 
 
@@ -175,11 +175,13 @@ def process_event(year, fire, root, out_dir, threads=16, overwrite=False):
         for i in range(N_MONTHS):
             t1 = shift_month(fire_start, -(N_MONTHS - 1 - i)); t0 = shift_month(t1, -1)
             ts = {"month": t0.strftime("%Y-%m"), "window": [t0.isoformat(), t1.isoformat()], "widened": 0, "n_scenes": 0, "valid": 0.0}
-            best, best_valid = None, 0.0
+            best, best_valid, seen = None, 0.0, set()
             for widen in range(WIDEN_MAX + 1):
                 w0 = shift_month(t0, -widen)
-                sel = select_scenes(items, w0, t1)
-                if widen and len(sel) == ts["n_scenes"]: continue   # nothing new in the wider window
+                sel = select_scenes(items, w0, t1, MAX_SCENES_PER_TILE * (widen + 1))   # wider window, proportionally more scenes
+                ids = frozenset(it.id for it in sel)
+                if widen and ids == seen: continue   # nothing new in the wider window
+                seen = ids
                 med, valid = composite(sel, grid, pool)
                 ts.update(widened=widen, window=[w0.isoformat(), t1.isoformat()], n_scenes=len(sel))
                 if valid > best_valid: best, best_valid = med, valid
