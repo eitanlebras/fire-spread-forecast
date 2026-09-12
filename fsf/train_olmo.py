@@ -192,7 +192,8 @@ def stage2(cfg, seeds, dev):
     bs = tc["batch_size"]; lr = tc["base_lr"] * bs / tc["base_batch"]; spe = max(1, N // bs); total = spe * tc["max_epochs"]
 
     def batch(x, y, meta, idx, aug_k=None):
-        xb = expand_landcover(x[idx].to(dev).float(), lc); yb = y[idx].to(dev); sb, mo, yr = s2.gather(meta[idx.cpu()]); sb = sb.to(dev)
+        xb = expand_landcover(x[idx].to(dev).float(), lc); yb = y[idx].to(dev)
+        sb, mo, yr = (t.to(dev) for t in s2.gather(meta[idx.cpu()]))
         if aug_k is not None: xb, yb = D.dihedral(xb, yb, aug_k, vec_idx); sb = dihedral_nd(sb, aug_k)
         return xb, yb, sb, mo, yr
 
