@@ -1,17 +1,7 @@
-<p align="center">
-  <img src="assets/logo.svg" alt="Fireline — wildfire spread forecasting" width="440">
-</p>
+# fire-spread-forecast
 
 Next-day wildfire spread as per-pixel probability: today's active-fire mask + terrain, weather, fuel and land cover on a
 375 m grid → P(active fire in the next 24 h) for every pixel. Built at the Frontier Cascadia hackathon, September 2026.
-
-**Live demo map:** https://eitanlebras.github.io/fire-spread-forecast/
-
-<p align="center">
-  <img src="assets/fire_25294746_day12.png" alt="Fire 25294746, day 12: model forecast (blue) vs. observed next-day fire (orange)" width="720">
-</p>
-
-<p align="center"><sub>Fire 25294746, day 12 (2021-07-20). Grey is burning today, blue is the model's probability of burning in the next 24 hours, orange outlines the fire actually observed the next day.</sub></p>
 
 **Model: [eitanlebras/fire-spread-forecast-v1-small](https://huggingface.co/eitanlebras/fire-spread-forecast-v1-small)** on Hugging Face
 (MIT, 1.94 M-parameter UNet, weights + `config.json` with the mandatory normalization stats + standalone `inference.py` + model card).

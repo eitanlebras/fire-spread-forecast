@@ -146,9 +146,9 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     cb = fig.colorbar(im, cax=cax, orientation="horizontal"); cb.outline.set_visible(False)
     cb.set_ticks([0, 0.25, 0.5, 0.75, 1]); cax.tick_params(labelsize=8, length=0, colors=P.MUTED)
     handles = [Patch(facecolor=c, edgecolor=P.GRID, label=l) for c, l in zip(P.BURN_COLORS[1:], P.BURN_LABELS[1:])]
-    handles.append(Line2D([0], [0], color=P.INK_2, lw=0.9, label="yesterday's perimeter (both panels)"))
+    handles.append(Line2D([0], [0], color=P.INK_2, lw=0.9, label="yesterday's perimeter"))
     if water is not None and water[r0:r1, c0:c1].any(): handles.append(Patch(facecolor=P.WATER, edgecolor=P.GRID, label="water"))
-    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(-0.02, -0.02), ncol=4, handlelength=1.0, columnspacing=0.8, handletextpad=0.5, fontsize=7.8, frameon=False)
+    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(-0.02, -0.02), ncol=2, handlelength=1.0, columnspacing=0.8, handletextpad=0.5, fontsize=7.8, frameon=False)
     fig.text(0.03, 0.94, f"{name}   ·   day {k}/{T - 1}   ·   {dates[k]}", fontsize=13, fontweight="bold", color=P.INK)
     stats = f"burning: {int(cur.sum()):,} px   new today: {int((burn == 2).sum()):,} px   forecast made {dates[k - 1]}"
     m = day_auc_pr(prob, cur, prev)
