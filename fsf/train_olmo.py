@@ -35,10 +35,15 @@ def dihedral_nd(t, k):
     return t.contiguous()
 
 
+def fire_key(f):
+    """'year/fire_id' of a tile-cache fire; a stale 'fire_x.partial' dir (killed fetch shard) maps to fire_x's composite."""
+    return f"{f['year']}/{f['fire'].replace('.partial', '')}"
+
+
 def tile_embeddings(fires, meta, ecache):
     """(N,D,p,p) fp16: the cached embedding of each tile's (fire, row_off, col_off)."""
     tile = ecache["tile"]; emb = ecache["emb"]
-    return torch.stack([emb[f"{fires[fi]['year']}/{fires[fi]['fire']}"][r // tile, c // tile] for fi, _, r, c in meta.tolist()])
+    return torch.stack([emb[fire_key(fires[fi])][r // tile, c // tile] for fi, _, r, c in meta.tolist()])
 
 
 class S2Tiles:
@@ -46,7 +51,7 @@ class S2Tiles:
     def __init__(self, fires, s2_root, tile, device):
         self.tile, self.a, self.mo, self.yr = tile, [], [], []
         for f in fires:
-            p = f"{s2_root}/{f['year']}/{f['fire']}.npy"; a = np.load(p).astype(np.float32)
+            p = f"{s2_root}/{fire_key(f)}.npy"; a = np.load(p).astype(np.float32)
             T, C, H, W = a.shape; nr, nc = -(-H // tile), -(-W // tile)
             pad = np.full((T, C, nr * tile, nc * tile), np.nan, np.float32); pad[:, :, :H, :W] = a
             self.a.append(torch.from_numpy(pad).half().to(device))
