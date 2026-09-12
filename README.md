@@ -1,8 +1,16 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Fireline — 24-hour wildfire spread forecasting" width="440">
+  <img src="assets/logo.svg" alt="Fireline — wildfire spread forecasting" width="440">
 </p>
 
 Fireline predicts, per pixel, where an active wildfire will burn in the next 24 hours as a calibrated probability map rather than a single deterministic perimeter.
+
+**Live demo map:** https://eitanlebras.github.io/fire-spread-forecast/
+
+<p align="center">
+  <img src="assets/fire_25294746_day12.png" alt="Fire 25294746, day 12: model forecast (blue) vs. observed next-day fire (orange)" width="720">
+</p>
+
+<p align="center"><sub>Fire 25294746, day 12 (2021-07-20). Grey is burning today, blue is the model's probability of burning in the next 24 hours, orange outlines the fire actually observed the next day.</sub></p>
 
 ## What's here
 
