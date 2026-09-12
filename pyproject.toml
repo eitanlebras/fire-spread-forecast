@@ -13,6 +13,9 @@ dependencies = [
     "scikit-learn",
     "pyyaml",
     "tqdm",
+    "rasterio",
+    "pystac-client",
+    "torchvision",
 ]
 
 [tool.uv]
