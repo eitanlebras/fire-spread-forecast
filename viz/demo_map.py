@@ -65,31 +65,52 @@ def synthetic_fuel_png(H, W, seed):
 
 # ---------------------------------------------------------------- real events
 
+BUFFER_KM, FEATHER_KM = 10.0, 3.0      # forecast shown only this far from today's fire; edge fades over FEATHER_KM
+
+
+def growth_field(prob, today, pixel_km, buffer_km=BUFFER_KM, feather_km=FEATHER_KM, seam_sigma=0.7):
+    """What the model adds: P(burn tomorrow) on pixels NOT burning today, confined to a feathered buffer around today's
+    fire, lightly smoothed so pixel/tile seams don't read as artifacts. Returns (display field, exposure field, fade)."""
+    from scipy import ndimage as ndi
+    d = ndi.distance_transform_edt(~today) * pixel_km
+    fade = np.clip((buffer_km - d) / feather_km, 0, 1).astype(np.float32)
+    shown = ndi.gaussian_filter(prob * fade * (~today), seam_sigma).astype(np.float32)
+    return shown, (prob * fade).astype(np.float32), fade
+
+
 def load_event(name, src, day, probs_path=None):
+    """day = TODAY (0..T-2): today's fire is the grey fill, the model's forecast FOR TOMORROW (probs[day+1], made from
+    today) is the blue growth field, and tomorrow's observed new fire (if the record has it) is the orange outline."""
     masks, dates, _ = load_fire(src); T = len(masks)
     probs = align_probs(np.load(probs_path), T, masks.shape[1:]) if probs_path else placeholder_probs(masks)
     day = T - 2 if day is None else day
     if not 0 <= day <= T - 2: sys.exit(f"{name}: --day must be in 0..{T - 2}")
-    ev = {"name": name, "date": dates[day], "placeholder": probs_path is None}
+    today = masks[day].astype(bool); new_next = masks[day + 1].astype(bool) & ~today
+    ev = {"name": name, "date": dates[day], "date_next": dates[day + 1], "placeholder": probs_path is None}
     if os.path.isdir(src):
         import glob, rasterio
         from rasterio.warp import reproject, Resampling, calculate_default_transform
         tif = sorted(glob.glob(os.path.join(src, "*.tif")))[0]
-        ev["raster"] = X.Raster.from_geotiff(tif, prob=probs[day])                        # event CRS, for the exposure engine
-        with rasterio.open(tif) as ds:                                                       # warp P and mask to a WGS84 grid for the overlay
-            if ds.crs.to_epsg() == 4326: ev["prob"], ev["mask"], ev["bbox"] = probs[day], masks[day], tuple(ds.bounds)
-            else:
+        with rasterio.open(tif) as ds:
+            pixel_km = abs(ds.transform.a) / 1000.0 if ds.crs.to_epsg() != 4326 else abs(ds.transform.a) * 111.0
+            shown, expo, _ = growth_field(probs[day + 1], today, pixel_km)
+            ev["raster"] = X.Raster.from_geotiff(tif, prob=expo)                                  # event CRS, for the exposure engine
+            if ds.crs.to_epsg() == 4326: ev["prob"], ev["mask"], ev["new_next"], ev["bbox"] = shown, today, new_next, tuple(ds.bounds)
+            else:                                                                                   # warp to a WGS84 grid for the overlay
                 tr, w, h = calculate_default_transform(ds.crs, "EPSG:4326", ds.width, ds.height, *ds.bounds)
                 out = []
-                for arr in (probs[day].astype(np.float32), masks[day].astype(np.float32)):
+                for arr in (shown, today.astype(np.float32), new_next.astype(np.float32)):
                     dst = np.zeros((h, w), np.float32)
                     reproject(arr, dst, src_transform=ds.transform, src_crs=ds.crs, dst_transform=tr, dst_crs="EPSG:4326", resampling=Resampling.bilinear); out.append(dst)
-                ev["prob"], ev["mask"] = out[0], out[1] > 0.5
+                ev["prob"], ev["mask"], ev["new_next"] = out[0], out[1] > 0.5, out[2] > 0.5
                 ev["bbox"] = (tr.c, tr.f + h * tr.e, tr.c + w * tr.a, tr.f)
     else:
         sys.exit(f"{name}: masks files need a bbox; use --event NAME=DIR for GeoTIFFs or supply bbox_wgs84 in the npz") if "bbox" not in np.load(src) else None
-        ev["bbox"] = tuple(float(b) for b in np.load(src)["bbox"]); ev["prob"], ev["mask"] = probs[day], masks[day]
-        ev["raster"] = X.Raster.from_bbox(probs[day], ev["bbox"])
+        ev["bbox"] = tuple(float(b) for b in np.load(src)["bbox"]); pixel_km = (ev["bbox"][2] - ev["bbox"][0]) * 111.0 * math.cos(math.radians((ev["bbox"][1] + ev["bbox"][3]) / 2)) / masks.shape[2]
+        shown, expo, _ = growth_field(probs[day + 1], today, pixel_km)
+        ev["prob"], ev["mask"], ev["new_next"] = shown, today, new_next
+        ev["raster"] = X.Raster.from_bbox(expo, ev["bbox"])
+    ev["n_today"], ev["n_new_next"] = int(today.sum()), int(new_next.sum())
     return ev
 
 # ---------------------------------------------------------------- panel text
@@ -203,16 +224,26 @@ def build_map(events, wind, fuel, panels, placeholder, territory, threshold, net
         folium.PolyLine([(lat, lon), (lat2, lon2)], color=P.INK_2, weight=2, opacity=0.8, tooltip=f"wind {spd:.1f} m/s toward {deg:.0f}°").add_to(fg_wind)
         folium.RegularPolygonMarker((lat2, lon2), number_of_sides=3, radius=5, rotation=deg - 90, color=P.INK_2, fill_color=P.INK_2, fill_opacity=0.9, weight=1).add_to(fg_wind)
     fg_wind.add_to(m)
-    fg_fire = folium.FeatureGroup(name=f"Fire perimeter, today — VIIRS detections{tag('fire')}", show=True)
+    fg_fire = folium.FeatureGroup(name=f"Burning today — VIIRS detections (grey){tag('fire')}", show=True)
     for ev in events:
         g = Grid(ev["bbox"], *ev["mask"].shape); rings = mask_polygons(ev["mask"], g)
-        if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiLineString", "coordinates": rings}},
-                                 style_function=lambda _: {"color": P.ORANGE, "weight": 2.5, "opacity": 0.95}, tooltip=f"{ev['name']} · active fire {ev['date']}").add_to(fg_fire)
+        if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiPolygon", "coordinates": [[r] for r in rings]}},
+                                 style_function=lambda _: {"color": P.INK_2, "weight": 1.5, "opacity": 0.9, "fillColor": P.INK_2, "fillOpacity": 0.45},
+                                 tooltip=f"{ev['name']} · burning {ev['date']} ({ev.get('n_today', '?')} px)").add_to(fg_fire)
     fg_fire.add_to(m)
-    fg_prob = folium.FeatureGroup(name=f"24 h burn probability — the model{tag('probs')}", show=True)
+    fg_prob = folium.FeatureGroup(name=f"Where it spreads in 24 h — the model, growth region only{tag('probs')}", show=True)
     for ev in events:
         folium.raster_layers.ImageOverlay(image="data:image/png;base64," + base64.b64encode(prob_png(ev["prob"])).decode(), bounds=Grid(ev["bbox"], 1, 1).bounds, opacity=1.0, zindex=3, interactive=False).add_to(fg_prob)
     fg_prob.add_to(m)
+    fg_next = folium.FeatureGroup(name="What actually burned next day — new fire (orange)", show=True)
+    for ev in events:
+        nn = ev.get("new_next")
+        if nn is None or not nn.any(): continue
+        g = Grid(ev["bbox"], *nn.shape); rings = mask_polygons(nn, g)
+        if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiLineString", "coordinates": rings}},
+                                 style_function=lambda _: {"color": P.ORANGE, "weight": 2.5, "opacity": 0.95},
+                                 tooltip=f"{ev['name']} · new fire observed {ev.get('date_next', '')} ({ev.get('n_new_next', '?')} px)").add_to(fg_next)
+    fg_next.add_to(m)
     groups = {c: add_assets(m, events, c, threshold, network) if c != "volunteer" else () for c in CUSTOMERS}
     folium.LayerControl(collapsed=False).add_to(m); plugins.Fullscreen().add_to(m)
     m.fit_bounds([[min(e["bbox"][1] for e in events) - 0.05, min(e["bbox"][0] for e in events) - 0.05], [max(e["bbox"][3] for e in events) + 0.05, max(e["bbox"][2] for e in events) + 0.05]])
@@ -226,7 +257,7 @@ def build_map(events, wind, fuel, panels, placeholder, territory, threshold, net
             f"{' · <b>placeholder fires and wind</b>' if placeholder.get('fire') else ''}</div></div>"
             f"<div style='position:fixed;bottom:22px;left:12px;z-index:1000;background:rgba(252,252,251,.9);padding:5px 9px;border-radius:4px;font:11px system-ui,sans-serif;color:#52514e'>"
             f"public infrastructure data (HIFLD{', placeholder geometry' if placeholder.get('grid') else ''}) · illustrative asset values and vulnerabilities · "
-            f"<span style='display:inline-block;width:70px;height:9px;vertical-align:middle;background:linear-gradient(90deg,{P.SURFACE},{P.SEQ_BLUE[3]},{P.SEQ_BLUE[-1]})'></span> P(burn in 24 h) 0 → 1</div>")
+            f"<span style='display:inline-block;width:70px;height:9px;vertical-align:middle;background:linear-gradient(90deg,{P.SURFACE},{P.SEQ_BLUE[3]},{P.SEQ_BLUE[-1]})'></span> P(burn in 24 h) 0 → 1 · shown within {BUFFER_KM:g} km of today's fire, growth region only</div>")
     m.get_root().html.add_child(folium.Element(html))
     js_groups = {c: [g.get_name() for g in grp] for c, grp in groups.items()}
     js = f"""
