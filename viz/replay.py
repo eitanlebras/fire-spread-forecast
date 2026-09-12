@@ -141,7 +141,7 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     if prev.any():                                   # yesterday's perimeter: outline of the lightly-smoothed mask, so speckled detections read as one front
         outline = _blur(prev, 2.5)
         for ax in (axL, axR): ax.contour(outline, levels=[0.22], colors=[P.INK_2], linewidths=0.9, alpha=0.85)
-    axL.set_title("Forecast  ·  P(new fire on this day), growth region only, made the day before" + ("   [PLACEHOLDER]" if placeholder else ""))
+    axL.set_title("Forecast  ·  P(new fire), growth region only" + ("   [PLACEHOLDER]" if placeholder else ""))
     axR.set_title("Actual  ·  active fire on this day")
     cb = fig.colorbar(im, cax=cax, orientation="horizontal"); cb.outline.set_visible(False)
     cb.set_ticks([0, 0.25, 0.5, 0.75, 1]); cax.tick_params(labelsize=8, length=0, colors=P.MUTED)
