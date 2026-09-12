@@ -12,7 +12,7 @@ the binary active-fire mask. Landcover is one-hot expanded (17 classes) on the G
 Split = the authors' fold 0: train 2018+2019, val 2020, test 2021.
 """
 import sys, os, json, glob, zipfile, subprocess, random, numpy as np, torch
-sys.path.insert(0, os.environ.get("WFTS_CODE", "/workspace/WildfireSpreadTS_code"))
+sys.path.insert(0, os.environ.get("WFTS_CODE", "/root/WildfireSpreadTS_code"))
 from src.dataloader.utils import get_means_stds_missing_values, get_indices_of_degree_features  # noqa: E402
 
 TILE = 128

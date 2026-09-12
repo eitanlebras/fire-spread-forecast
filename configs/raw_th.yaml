@@ -1,6 +1,6 @@
 name: ndws12_raw_th
-data_root: /workspace/data/ndws/data
-results_dir: /workspace/fsf/results
+data_root: /root/data/ndws/data
+results_dir: /root/fsf/results
 features: ndws12_raw_th
 save_model: false
 model: {width: 32, depth: 3, dropout: 0.1}
