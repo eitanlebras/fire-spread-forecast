@@ -69,7 +69,7 @@ class Ensemble:
         return vmap(self._f, in_dims=(0, 0, 0), randomness="different")(self.params, self.buffers, x)
 
     @torch.no_grad()
-    def predict(self, x, bs=1024):  # shared x (N,C,H,W) -> probs (S,N,H,W) fp32
+    def predict(self, x, bs=256):  # shared x (N,C,H,W) -> probs (S,N,H,W) fp32; chunk keeps S*bs activations small
         self.base.eval(); out = []
         for i in range(0, len(x), bs):
             with torch.autocast("cuda", dtype=torch.bfloat16):
