@@ -28,10 +28,8 @@ from PIL import Image
 from viz import palette as P
 from viz.replay import load_fire, placeholder_probs, align_probs
 
-HIFLD = {   # ArcGIS REST endpoints (HIFLD Open); bbox query with f=geojson. Unverified from this machine: pass GeoJSON files if they 404.
-    "transmission": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0/query",
-    "substations": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Substations/FeatureServer/0/query",
-}
+from viz.exposure import HIFLD as _HIFLD                     # verified endpoints live in viz/exposure.py
+HIFLD = {"transmission": _HIFLD["lines"], "substations": _HIFLD["substations"]}
 DEMO_BBOX = (-121.95, 44.30, -121.55, 44.55)     # W S E N; central Oregon Cascades foothills, for the synthetic demo
 
 # ---------------------------------------------------------------- geometry helpers
@@ -78,7 +76,8 @@ def mask_polygons(mask, grid, smooth=1.0):
 def prob_png(prob, alpha_max=0.85):
     """Probability raster -> RGBA PNG bytes (colormap from the palette, transparent near zero)."""
     rgba = (P.PROB_CMAP(np.clip(prob, 0, 1)) * 255).astype(np.uint8)
-    rgba[..., 3] = (np.clip(prob, 0, 1) ** 0.6 * alpha_max * 255).astype(np.uint8)
+    a = np.clip((np.clip(prob, 0, 1) - 0.03) / 0.97, 0, 1) ** 0.6 * alpha_max          # fully transparent below 3 %, so the raster box has no edge
+    rgba[..., 3] = (a * 255).astype(np.uint8)
     buf = io.BytesIO(); Image.fromarray(rgba).save(buf, "PNG"); return buf.getvalue()
 
 # ---------------------------------------------------------------- placeholder data
@@ -174,6 +173,11 @@ def line_exposure(lines, prob, grid, radius_km):
 
 # ---------------------------------------------------------------- map
 
+def exposure_color(p):
+    """Status colors for grid assets, distinct from the blue probability ramp: critical >= 0.5, serious >= 0.2, else neutral ink."""
+    return "#d03b3b" if p >= 0.5 else ("#ec835a" if p >= 0.2 else P.INK_2)
+
+
 def build_map(masks, probs, dates, name, bbox, day, wind, lines, subs, radius_km, placeholder):
     T, H, W = masks.shape; grid = Grid(bbox, H, W); mask, prob = masks[day], probs[day]
     tag = lambda k: "  (placeholder)" if placeholder.get(k) else ""
@@ -213,10 +217,11 @@ def build_map(masks, probs, dates, name, bbox, day, wind, lines, subs, radius_km
     # grid assets
     lines = line_exposure(lines, prob, grid, radius_km)
     fg_lines = folium.FeatureGroup(name=f"Transmission lines (HIFLD){tag('grid')}", show=True)
-    folium.GeoJson(lines, style_function=lambda f: {"color": P.PROB_CMAP(0.35 + 0.65 * f["properties"].get("p_max", 0)) and matplotlib.colors.to_hex(P.PROB_CMAP(0.35 + 0.65 * f["properties"].get("p_max", 0))),
-                                                    "weight": 3, "opacity": 0.9},
-                   tooltip=folium.GeoJsonTooltip(fields=[k for k in ("NAME", "VOLTAGE", "p_max") if all(k in f["properties"] for f in lines["features"])],
-                                                 aliases=["line", "kV", "max P(24h) within reach"][:3])).add_to(fg_lines)
+    line_color = lambda f: exposure_color(f["properties"].get("p_max", 0))
+    alias = {"NAME": "line", "VOLTAGE": "kV", "OWNER": "owner", "p_max": "max P(24h) within reach"}
+    fields = [k for k in alias if all(k in f["properties"] for f in lines["features"])]
+    folium.GeoJson(lines, style_function=lambda f: {"color": line_color(f), "weight": 3, "opacity": 0.9},
+                   tooltip=folium.GeoJsonTooltip(fields=fields, aliases=[alias[k] for k in fields]) if fields else None).add_to(fg_lines)
     fg_lines.add_to(m)
     fg_subs = folium.FeatureGroup(name=f"Substations (HIFLD){tag('grid')}", show=True)
     for f in subs["features"]:
@@ -228,7 +233,7 @@ def build_map(masks, probs, dates, name, bbox, day, wind, lines, subs, radius_km
     ranked = rank_exposure(subs, prob, mask, grid, radius_km)
     fg_exp = folium.FeatureGroup(name=f"Asset exposure, ranked{tag('grid') or tag('probs')}", show=True)
     for d in ranked:
-        hot = d["p_max"] >= 0.5; bg = "#d03b3b" if hot else ("#ec835a" if d["p_max"] >= 0.2 else P.INK_2)
+        bg = exposure_color(d["p_max"])
         icon = folium.DivIcon(html=f'<div style="background:{bg};color:#fff;border:2px solid #fff;border-radius:50%;width:24px;height:24px;line-height:24px;'
                                    f'text-align:center;font:600 12px system-ui,sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.4)">{d["rank"]}</div>', icon_size=(24, 24), icon_anchor=(12, 12))
         dist = "inside fire" if d["dist_km"] == 0 else (f"{d['dist_km']:.1f} km from fire" if math.isfinite(d["dist_km"]) else "no fire today")
@@ -269,7 +274,7 @@ def main(argv=None):
     T, H, W = masks.shape
     if a.probs: probs = align_probs(np.load(a.probs), T, (H, W))
     else: probs, placeholder["probs"] = placeholder_probs(masks), True
-    day = a.day if a.day is not None else T - 2                                    # last day that has a next-day forecast
+    day = a.day if a.day is not None else (4 if not a.fire else T - 2)             # default: last day with a forecast (demo: the day the front reaches the grid)
     if not 0 <= day <= T - 2: sys.exit(f"--day must be in 0..{T - 2} (day {T - 1} has no forecast)")
     grid = Grid(bbox, H, W)
     if a.wind: wind = load_wind_csv(a.wind)
@@ -279,7 +284,7 @@ def main(argv=None):
         print(f"HIFLD: {len(lines['features'])} lines, {len(subs['features'])} substations in bbox")
     elif a.transmission and a.substations: lines, subs = json.load(open(a.transmission)), json.load(open(a.substations))
     else: (lines, subs), placeholder["grid"] = synthetic_grid_assets(grid), True
-    m, ranked = build_map(masks, probs[day - 0: day + 1][0:1].reshape(1, H, W).repeat(T - 1, 0) if False else probs, dates, name, bbox, day, wind, lines, subs, a.exposure_km, placeholder)
+    m, ranked = build_map(masks, probs, dates, name, bbox, day, wind, lines, subs, a.exposure_km, placeholder)
     out = a.out or os.path.join("out", "map", f"{name.replace('/', '_')}_{dates[day].replace(' ', '')}.html")
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True); m.save(out)
     print(f"{name} day {day} ({dates[day]}): {H}x{W} px, bbox {tuple(round(b, 4) for b in bbox)}; placeholder: {sorted(placeholder) or 'none'}")
