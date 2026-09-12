@@ -1,0 +1,158 @@
+ 1. WESTERN SUBSTATION           115 kV substation, P 9%            P 9%                        $919k
+ 2. MIKE DONTEEN                 115 kV substation, P 3%            P 3%                        $307k
+ 3. NORTH WENATCHEE              115 kV substation, P 2%            P 2%                        $256k
+ 4. TAP209273                    115 kV substation, P 1%            P 1%                         $87k
+ 5. PUD NO 1 OF CHELAN COUNTY 115 kV #211391 0.0 of 3 mi above 40%              worst segment 15%            $51k
+ 6. PUD NO 1 OF CHELAN COUNTY 115 kV #211383 0.0 of 3 mi above 40%              worst segment 15%            $48k
+ 7. TERRY                        115 kV substation, P 0%            P 0%                         $41k
+ 8. PUD NO 1 OF CHELAN COUNTY 115 kV #211359 0.0 of 1 mi above 40%              worst segment 8%             $41k
+ 9. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211433 0.0 of 1 mi above 40%              worst segment 8%             $38k
+10. BONNEVILLE POWER ADMINISTRATION 345 kV #200126 0.0 of 54 mi above 40%             worst segment 6%             $38k
+11. BONNEVILLE POWER ADMINISTRATION 500 kV #200083 0.0 of 8 mi above 40%              worst segment 9%             $36k
+12. BONNEVILLE POWER ADMINISTRATION 345 kV #200125 0.0 of 8 mi above 40%              worst segment 9%             $35k
+13. PUD NO 1 OF DOUGLAS COUNTY 230 kV #205765 0.0 of 41 mi above 40%             worst segment 6%             $34k
+14. BONNEVILLE POWER ADMINISTRATION 500 kV #200076 0.0 of 54 mi above 40%             worst segment 6%             $34k
+15. BONNEVILLE POWER ADMINISTRATION 345 kV #200127 0.0 of 54 mi above 40%             worst segment 6%             $34k
+16. PUD NO 1 OF DOUGLAS COUNTY 230 kV #205764 0.0 of 41 mi above 40%             worst segment 6%             $33k
+17. OKANOGAN COUNTY ELEC COOP, INC 115 kV #205966 0.0 of 6 mi above 40%              worst segment 16%            $32k
+18. BONNEVILLE POWER ADMINISTRATION 500 kV #200087 0.0 of 33 mi above 40%             worst segment 6%             $32k
+19. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211400 0.0 of 8 mi above 40%              worst segment 9%             $30k
+20. TAP209247                    115 kV substation, P 0%            P 0%                         $28k
+21. TAP209281                    115 kV substation, P 0%            P 0%                         $27k
+22. PUD NO 1 OF CHELAN COUNTY 115 kV #211392 0.0 of 6 mi above 40%              worst segment 10%            $24k
+23. BONNEVILLE POWER ADMINISTRATION 230 kV #201009 0.0 of 8 mi above 40%              worst segment 9%             $19k
+24. SUNNYSLOPE                   115 kV substation, P 0%            P 0%                         $18k
+25. TAP209246                    115 kV substation, P 0%            P 0%                         $18k
+26. BONNEVILLE POWER ADMINISTRATION 230 kV #205766 0.0 of 8 mi above 40%              worst segment 9%             $17k
+27. PUD NO 1 OF DOUGLAS COUNTY 230 kV #206972 0.0 of 4 mi above 40%              worst segment 8%             $14k
+28. PUD NO 1 OF CHELAN COUNTY 115 kV #211371 0.0 of 0 mi above 40%              worst segment 8%             $12k
+29. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211394 0.0 of 2 mi above 40%              worst segment 3%             $10k
+30. PUD NO 1 OF CHELAN COUNTY 115 kV #211360 0.0 of 3 mi above 40%              worst segment 2%             $10k
+31. TAP209238                    115 kV substation, P 0%            P 0%                         $10k
+32. TAP209279                    115 kV substation, P 0%            P 0%                         $10k
+33. PUD NO 1 OF OKANOGAN COUNTY 115 kV #211435 0.0 of 0 mi above 40%              worst segment 6%              $9k
+34. PUGET SOUND ENERGY INC 230 kV #205726 0.0 of 7 mi above 40%              worst segment 6%              $9k
+35. OLDS STATION                 115 kV substation, P 0%            P 0%                          $9k
+36. PUD NO 1 OF CHELAN COUNTY 115 kV #211372 0.0 of 2 mi above 40%              worst segment 2%              $9k
+37. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211395 0.0 of 0 mi above 40%              worst segment 7%              $8k
+38. PESHASTIN SUBSTATION         115 kV substation, P 0%            P 0%                          $7k
+39. UNKNOWN209280                115 kV substation, P 0%            P 0%                          $7k
+40. UNKNOWN206245                115 kV substation, P 0%            P 0%                          $7k
+41. TAP209277                    115 kV substation, P 0%            P 0%                          $6k
+42. TAP209278                    115 kV substation, P 0%            P 0%                          $5k
+43. MANSON                       115 kV substation, P 0%            P 0%                          $5k
+44. TAP209269                    115 kV substation, P 0%            P 0%                          $5k
+45. TAP209282                    115 kV substation, P 0%            P 0%                          $5k
+46. ANDERSON CANYON              115 kV substation, P 0%            P 0%                          $5k
+47. TAP203458                    115 kV substation, P 0%            P 0%                          $5k
+48. TWISP                        115 kV substation, P 0%            P 0%                          $5k
+49. PUD NO 1 OF CHELAN COUNTY 115 kV #211393 0.0 of 6 mi above 40%              worst segment 0%              $5k
+50. UNKNOWN202971                115 kV substation, P 0%            P 0%                          $5k
+51. PUD NO 1 OF CHELAN COUNTY 115 kV #211455 0.0 of 13 mi above 40%             worst segment 0%              $5k
+52. UNKNOWN202969                115 kV substation, P 0%            P 0%                          $4k
+53. TAP209283                    115 kV substation, P 0%            P 0%                          $4k
+54. PUD NO 1 OF CHELAN COUNTY 115 kV #211456 0.0 of 12 mi above 40%             worst segment 0%              $4k
+55. UNKNOWN202970                115 kV substation, P 0%            P 0%                          $4k
+56. TAP209267                    115 kV substation, P 0%            P 0%                          $4k
+57. UNKNOWN209272                34 kV substation, P 0%             P 0%                          $3k
+58. PUD NO 1 OF CHELAN COUNTY 115 kV #211444 0.0 of 4 mi above 40%              worst segment 0%              $3k
+59. PUD NO 1 OF OKANOGAN COUNTY 115 kV #211430 0.0 of 8 mi above 40%              worst segment 0%              $3k
+60. PUD NO 1 OF CHELAN COUNTY 115 kV #211374 0.0 of 4 mi above 40%              worst segment 0%              $3k
+61. PATEROS                      115 kV substation, P 0%            P 0%                          $3k
+62. PUD NO 1 OF OKANOGAN COUNTY 115 kV #211431 0.0 of 0 mi above 40%              worst segment 2%              $3k
+63. LEAVENWORTH SUBSTATION       115 kV substation, P 0%            P 0%                          $3k
+64. TAP209271                    115 kV substation, P 0%            P 0%                          $2k
+65. PUD NO 1 OF CHELAN COUNTY 115 kV #211451 0.0 of 14 mi above 40%             worst segment 0%              $2k
+66. PUD NO 1 OF CHELAN COUNTY 115 kV #211439 0.0 of 6 mi above 40%              worst segment 0%              $2k
+67. CRUM CANYON                  115 kV substation, P 0%            P 0%                          $2k
+68. WAPATO                       115 kV substation, P 0%            P 0%                          $2k
+69. DOUGLAS                      230 kV substation, P 0%            P 0%                          $2k
+70. UNION VALLEY                 115 kV substation, P 0%            P 0%                          $2k
+71. UNKNOWN209240                115 kV substation, P 0%            P 0%                          $2k
+72. TAP209259                    69 kV substation, P 0%             P 0%                          $2k
+73. TAP209261                    69 kV substation, P 0%             P 0%                          $2k
+74. MILES O'MALLEY               69 kV substation, P 0%             P 0%                          $2k
+75. PUD NO 1 OF CHELAN COUNTY 115 kV #211376 0.0 of 9 mi above 40%              worst segment 0%              $2k
+76. OKANOGAN COUNTY ELEC COOP, INC 115 kV #205964 0.0 of 10 mi above 40%             worst segment 0%              $2k
+77. TAP209266                    115 kV substation, P 0%            P 0%                          $2k
+78. BONNEVILLE POWER ADMINISTRATION 115 kV #201026 0.0 of 8 mi above 40%              worst segment 0%              $2k
+79. TAP206318                    115 kV substation, P 0%            P 0%                          $2k
+80. UNKNOWN202925                115 kV substation, P 0%            P 0%                          $2k
+81. TAP209241                    115 kV substation, P 0%            P 0%                          $2k
+82. UNKNOWN209244                115 kV substation, P 0%            P 0%                          $2k
+83. ORONDO                       115 kV substation, P 0%            P 0%                          $2k
+84. UNKNOWN202563                115 kV substation, P 0%            P 0%                          $2k
+85. UNKNOWN209242                115 kV substation, P 0%            P 0%                          $2k
+86. TAP209260                    115 kV substation, P 0%            P 0%                          $2k
+87. TAP209263                    115 kV substation, P 0%            P 0%                          $2k
+88. UNKNOWN209264                115 kV substation, P 0%            P 0%                          $2k
+89. TAP209265                    115 kV substation, P 0%            P 0%                          $2k
+90. PUD NO 1 OF OKANOGAN COUNTY 115 kV #211432 0.0 of 0 mi above 40%              worst segment 1%              $1k
+91. UNKNOWN202484                115 kV substation, P 0%            P 0%                          $1k
+92. PUD NO 1 OF CHELAN COUNTY 115 kV #211364 0.0 of 13 mi above 40%             worst segment 0%              $1k
+93. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211415 0.0 of 13 mi above 40%             worst segment 0%              $1k
+94. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211413 0.0 of 10 mi above 40%             worst segment 0%              $1k
+95. PUD NO 1 OF CHELAN COUNTY 115 kV #211458 0.0 of 6 mi above 40%              worst segment 0%              $1k
+96. PUD NO 1 OF CHELAN COUNTY 115 kV #211422 0.0 of 7 mi above 40%              worst segment 0%             $948
+97. PUD NO 1 OF CHELAN COUNTY 115 kV #211428 0.0 of 8 mi above 40%              worst segment 0%             $933
+98. PUD NO 1 OF CHELAN COUNTY 115 kV #211460 0.0 of 4 mi above 40%              worst segment 0%             $908
+99. PUD NO 1 OF CHELAN COUNTY 115 kV #211459 0.0 of 4 mi above 40%              worst segment 0%             $827
+100. PUD NO 1 OF CHELAN COUNTY 115 kV #211440 0.0 of 2 mi above 40%              worst segment 0%             $700
+101. PUD NO 1 OF CHELAN COUNTY 115 kV #211368 0.0 of 8 mi above 40%              worst segment 0%             $639
+102. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211414 0.0 of 6 mi above 40%              worst segment 0%             $630
+103. PUD NO 1 OF CHELAN COUNTY 115 kV #206083 0.0 of 8 mi above 40%              worst segment 0%             $617
+104. PUD NO 1 OF CHELAN COUNTY 115 kV #211367 0.0 of 6 mi above 40%              worst segment 0%             $603
+105. PUD NO 1 OF CHELAN COUNTY 115 kV #211450 0.0 of 4 mi above 40%              worst segment 0%             $602
+106. PUD NO 1 OF CHELAN COUNTY 115 kV #211361 0.0 of 3 mi above 40%              worst segment 0%             $550
+107. PUD NO 1 OF CHELAN COUNTY 115 kV #211448 0.0 of 2 mi above 40%              worst segment 0%             $530
+108. PUD NO 1 OF CHELAN COUNTY 115 kV #211449 0.0 of 3 mi above 40%              worst segment 0%             $523
+109. PUD NO 1 OF CHELAN COUNTY 115 kV #211443 0.0 of 1 mi above 40%              worst segment 0%             $372
+110. PUD NO 1 OF CHELAN COUNTY 115 kV #211438 0.0 of 1 mi above 40%              worst segment 0%             $371
+111. PUD NO 1 OF CHELAN COUNTY 115 kV #211369 0.0 of 4 mi above 40%              worst segment 0%             $323
+112. PUD NO 1 OF CHELAN COUNTY 115 kV #211454 0.0 of 1 mi above 40%              worst segment 0%             $321
+113. PUD NO 1 OF CHELAN COUNTY 115 kV #211442 0.0 of 1 mi above 40%              worst segment 0%             $302
+114. PUD NO 1 OF CHELAN COUNTY 115 kV #211453 0.0 of 1 mi above 40%              worst segment 0%             $289
+115. PUD NO 1 OF CHELAN COUNTY 115 kV #211426 0.0 of 2 mi above 40%              worst segment 0%             $280
+116. PUD NO 1 OF CHELAN COUNTY 115 kV #211425 0.0 of 1 mi above 40%              worst segment 0%             $265
+117. PUD NO 1 OF CHELAN COUNTY 115 kV #211416 0.0 of 3 mi above 40%              worst segment 0%             $210
+118. PUD NO 1 OF CHELAN COUNTY 115 kV #211420 0.0 of 3 mi above 40%              worst segment 0%             $203
+119. PUD NO 1 OF CHELAN COUNTY 115 kV #211445 0.0 of 0 mi above 40%              worst segment 0%             $178
+120. PUD NO 1 OF CHELAN COUNTY 115 kV #211366 0.0 of 2 mi above 40%              worst segment 0%             $144
+121. PUD NO 1 OF CHELAN COUNTY 115 kV #211446 0.0 of 0 mi above 40%              worst segment 0%             $139
+122. PUD NO 1 OF CHELAN COUNTY 115 kV #211419 0.0 of 1 mi above 40%              worst segment 0%             $119
+123. OKANOGAN COUNTY ELEC COOP, INC 115 kV #205965 0.0 of 0 mi above 40%              worst segment 0%             $118
+124. PUD NO 1 OF CHELAN COUNTY 115 kV #211363 0.0 of 1 mi above 40%              worst segment 0%             $109
+125. PUD NO 1 OF CHELAN COUNTY 115 kV #211362 0.0 of 0 mi above 40%              worst segment 0%              $48
+126. BONNEVILLE POWER ADMINISTRATION 230 kV #201015 0.0 of 1 mi above 40%              worst segment 0%              $46
+127. PUD NO 1 OF CHELAN COUNTY 230 kV #206970 0.0 of 0 mi above 40%              worst segment 0%              $34
+128. PUD NO 1 OF CHELAN COUNTY 230 kV #206967 0.0 of 0 mi above 40%              worst segment 0%              $32
+129. PUD NO 1 OF CHELAN COUNTY 230 kV #206971 0.0 of 0 mi above 40%              worst segment 0%              $29
+130. PUD NO 1 OF CHELAN COUNTY 230 kV #206968 0.0 of 0 mi above 40%              worst segment 0%              $26
+131. PUD NO 1 OF CHELAN COUNTY 230 kV #206969 0.0 of 0 mi above 40%              worst segment 0%              $23
+132. PUD NO 1 OF CHELAN COUNTY 115 kV #211424 0.0 of 0 mi above 40%              worst segment 0%               $9
+133. PUD NO 1 OF CHELAN COUNTY 115 kV #206871 0.0 of 0 mi above 40%              worst segment 0%               $6
+134. PUD NO 1 OF DOUGLAS COUNTY 115 kV #211409 0.0 of 0 mi above 40%              worst segment 0%               $5
+135. PUD NO 1 OF DOUGLAS COUNTY 230 kV #205763 0.0 of 0 mi above 40%              worst segment 0%               $0
+136. PUD NO 1 OF CHELAN COUNTY 115 kV #211358 0.0 of 0 mi above 40%              worst segment 0%               $0
+137. PUD NO 1 OF CHELAN COUNTY 115 kV #211365 0.0 of 0 mi above 40%              worst segment 0%               $0
+138. PUD NO 1 OF CHELAN COUNTY 115 kV #211373 0.0 of 0 mi above 40%              worst segment 0%               $0
+139. PUD NO 1 OF CHELAN COUNTY 115 kV #211375 0.0 of 0 mi above 40%              worst segment 0%               $0
+140. PUD NO 1 OF CHELAN COUNTY 115 kV #211417 0.0 of 0 mi above 40%              worst segment 0%               $0
+141. PUD NO 1 OF CHELAN COUNTY 115 kV #211418 0.0 of 0 mi above 40%              worst segment 0%               $0
+142. PUD NO 1 OF CHELAN COUNTY 115 kV #211421 0.0 of 0 mi above 40%              worst segment 0%               $0
+143. PUD NO 1 OF CHELAN COUNTY 115 kV #211423 0.0 of 0 mi above 40%              worst segment 0%               $0
+144. PUD NO 1 OF CHELAN COUNTY 115 kV #211427 0.0 of 0 mi above 40%              worst segment 0%               $0
+145. PUD NO 1 OF CHELAN COUNTY 115 kV #211441 0.0 of 0 mi above 40%              worst segment 0%               $0
+146. PUD NO 1 OF CHELAN COUNTY 115 kV #211447 0.0 of 0 mi above 40%              worst segment 0%               $0
+147. PUD NO 1 OF CHELAN COUNTY 115 kV #211452 0.0 of 0 mi above 40%              worst segment 0%               $0
+148. PUD NO 1 OF CHELAN COUNTY 115 kV #211457 0.0 of 0 mi above 40%              worst segment 0%               $0
+149. BREWSTER                     115 kV substation, P 0%            P 0%                           $0
+150. SICKLER                      500 kV substation, P 0%            P 0%                           $0
+151. ROCKY REACH                  345 kV substation, P 0%            P 0%                           $0
+152. ANDREW YORK SUBSTATION & SWITCHYARD 115 kV substation, P 0%            P 0%                           $0
+153. MISSION                      115 kV substation, P 0%            P 0%                           $0
+154. LAKE CHELAN PROJECT SWITCHYARD 115 kV substation, P 0%            P 0%                           $0
+155. UNKNOWN202968                115 kV substation, P 0%            P 0%                           $0
+156. WATERVILLE                   69 kV substation, P 0%             P 0%                           $0
+157. TAP209276                    115 kV substation, P 0%            P 0%                           $0
+158. TAP209285                    115 kV substation, P 0%            P 0%                           $0

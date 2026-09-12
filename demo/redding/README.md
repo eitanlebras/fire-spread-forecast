@@ -11,3 +11,7 @@ Swap in the OlmoEarth post-trained checkpoint with `python -m fsf.predict CKPT F
 - `forecast_dates.json`: date layout of `probs.npy`.
 
 Model field sanity (from `fsf.predict`): on active days mean P on burned pixels 0.43-0.70 vs 0.003-0.007 on unburned; a re-ignition on 2021-09-23 (296 px) was missed (mean P 0.008).
+
+Day sweep (`python -m fsf.day_sweep`), days with >= 30 new-fire px: day 7 (09-23 -> 09-24) AUC-PR 0.318, overlap 0.65, dir 7°;
+day 8 (09-24 -> 09-25) 0.246, 0.71, 26°. Day 7 is the map above. The other candidate test fires: see `demo/chelan`;
+fire_25086466 (ND) and fire_25411896 (MT) have no forecastable growth day (sporadic <= 41 px detections, overlap 0).
