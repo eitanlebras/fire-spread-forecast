@@ -47,7 +47,7 @@ def predict_fire(model, norm, fire_dir, device, batch=8):
     T, _, H, W_ = x.shape; ph, pw = (-H) % 32, (-W_) % 32
     probs = np.zeros((T - 1, H, W_), np.float32)
     for i in range(0, T - 1, batch):
-        xb = torch.from_numpy(x[i:i + batch]).to(device).float()
+        xb = torch.from_numpy(x[i:min(i + batch, T - 1)]).to(device).float()               # day T-1 has no next day
         xb = expand_landcover(xb, norm["landcover_idx"])                                     # (B,40,H,W)
         xb = Fn.pad(xb, (0, pw, 0, ph))                                                      # UNet needs multiples of 8; authors crop to x32
         with torch.autocast(device, dtype=torch.bfloat16, enabled=device == "cuda"):
