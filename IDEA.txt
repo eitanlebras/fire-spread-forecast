@@ -1,0 +1,1 @@
+Came into the Frontier Cascadia hackathon with nothing but a simple idea for an application of AI for Good: predicting where wildfires will spread next.
