@@ -55,7 +55,7 @@ def preprocess(imgs, means, stds, deg_idx):
 def build_cache(root, out_path, tile=TILE):
     import rasterio
     from rasterio.warp import transform_bounds
-    means, stds, _ = get_means_stds_missing_values((2018, 2019)); means, stds = means.numpy(), stds.numpy()
+    means, stds, _ = get_means_stds_missing_values((2018, 2019)); means, stds = np.asarray(means, np.float32), np.asarray(stds, np.float32)
     deg_idx = get_indices_of_degree_features()
     fires_meta, X, Y, META = [], {s: [] for s in SPLIT}, {s: [] for s in SPLIT}, {s: [] for s in SPLIT}
     fire_dirs = sorted(glob.glob(f"{root}/*/*/"))
