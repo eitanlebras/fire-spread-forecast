@@ -28,7 +28,7 @@ CLOUD_LT = 40
 N_MONTHS = 4
 WIDEN_MAX = 3            # extra earlier months tried before a timestep is dropped
 MIN_VALID = 0.5          # composite must cover this fraction of the grid to count as usable
-MAX_SCENES_PER_TILE = 6  # least-cloudy scenes kept per (month, MGRS tile)
+MAX_SCENES_PER_TILE = 5  # least-cloudy scenes kept per (month, MGRS tile)
 SCL_BAD = (0, 1, 3, 8, 9, 10)  # nodata, saturated, cloud shadow, cloud med/high prob, thin cirrus
 
 # OlmoEarth sentinel2_l2a band order (olmoearth_pretrain/data/constants.py, Modality.SENTINEL2_L2A) -> Earth Search asset key
@@ -143,7 +143,7 @@ def select_scenes(items, t0, t1):
     return keep
 
 
-def process_event(year, fire, root, out_dir, threads=6, overwrite=False):
+def process_event(year, fire, root, out_dir, threads=16, overwrite=False):
     """One event -> npy + json. Returns a summary dict."""
     import rasterio
     out_npy = os.path.join(out_dir, year, f"{fire}.npy"); out_json = out_npy[:-4] + ".json"
@@ -203,7 +203,7 @@ def list_events(root, only=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default="/root/data/wfts/tif"); ap.add_argument("--out", default="/root/data/s2")
-    ap.add_argument("--workers", type=int, default=8); ap.add_argument("--threads", type=int, default=6, help="asset reads per worker")
+    ap.add_argument("--workers", type=int, default=8); ap.add_argument("--threads", type=int, default=16, help="asset reads per worker")
     ap.add_argument("--limit", type=int, default=0); ap.add_argument("--events", nargs="*", help="year/fire_id ...")
     ap.add_argument("--overwrite", action="store_true"); ap.add_argument("--progress", type=int, default=20)
     a = ap.parse_args()
