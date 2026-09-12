@@ -1,0 +1,66 @@
+
+PER FIRE (30 fires, 599 fire-days with >= 5 new px): new px interior/advance and share of each in the >0.4 zone
+  fire_25294706: days 33  interior  3231 px (88% hit)  advance  5526 px (20% hit)
+  fire_25411093: days 44  interior  2703 px (78% hit)  advance  5272 px (21% hit)
+  fire_25410700: days 32  interior  3877 px (90% hit)  advance  5243 px (25% hit)
+  fire_25411013: days 41  interior  2040 px (84% hit)  advance  3701 px (15% hit)
+  fire_25295831: days 34  interior  1199 px (85% hit)  advance  3015 px (23% hit)
+  fire_25411057: days 24  interior  1098 px (70% hit)  advance  2936 px (17% hit)
+  fire_25295023: days 25  interior  1525 px (82% hit)  advance  2892 px (30% hit)
+  fire_25294998: days 22  interior   852 px (85% hit)  advance  2525 px (25% hit)
+  fire_25410444: days 29  interior   964 px (83% hit)  advance  2471 px (25% hit)
+  fire_25411102: days 31  interior  1163 px (75% hit)  advance  2326 px (19% hit)
+  fire_25294746: days 17  interior   697 px (81% hit)  advance  1945 px (15% hit)
+  fire_25411795: days 23  interior   476 px (63% hit)  advance  1737 px (11% hit)
+  fire_25411777: days 18  interior   285 px (57% hit)  advance  1388 px (6% hit)
+  fire_25295941: days 25  interior   709 px (87% hit)  advance  1366 px (18% hit)
+  fire_25295909: days 24  interior   714 px (89% hit)  advance  1273 px (23% hit)
+  fire_25204815: days 14  interior   366 px (79% hit)  advance  1169 px (6% hit)
+  fire_25295837: days 20  interior   408 px (92% hit)  advance  1030 px (24% hit)
+  fire_25204869: days 14  interior   202 px (87% hit)  advance  1004 px (8% hit)
+  fire_25410845: days 33  interior   578 px (77% hit)  advance   968 px (6% hit)
+  fire_25295816: days 20  interior   289 px (99% hit)  advance   745 px (25% hit)
+  fire_25295089: days 24  interior   383 px (88% hit)  advance   672 px (17% hit)
+  fire_25411893: days 16  interior   247 px (79% hit)  advance   547 px (14% hit)
+  fire_25547988: days  8  interior   115 px (77% hit)  advance   429 px (6% hit)
+  fire_25204868: days  6  interior    35 px (89% hit)  advance   372 px (4% hit)
+  fire_25295856: days  7  interior   139 px (18% hit)  advance   324 px (36% hit)
+  fire_25295908: days  6  interior    21 px (29% hit)  advance   264 px (2% hit)
+  fire_25205336: days  3  interior    23 px (83% hit)  advance   195 px (4% hit)
+  fire_25086466: days  3  interior    12 px (0% hit)  advance    91 px (0% hit)
+  fire_25411896: days  3  interior     0 px (0% hit)  advance    52 px (0% hit)
+  fire_25205306: days  0  interior     0 px (0% hit)  advance     0 px (0% hit)
+
+POOLED over all days of all fires (pixels concatenated):
+          interior: new px  24351 of     101393  AUC-PR 0.451  overlap 0.83  prevalence 0.24016
+           advance: new px  51478 of   42434224  AUC-PR 0.065  overlap 0.19  prevalence 0.00121
+   interior_strict: new px    400 of       1407  AUC-PR 0.621  overlap 0.88  prevalence 0.28429
+    advance_strict: new px  75429 of   42519891  AUC-PR 0.218  overlap 0.39  prevalence 0.00177
+
+BEST ADVANCE FRAMES (advance new px >= 30, by advance AUC-PR):
+  fire_25295941 day  8 today 2021-07-12: advance AUC-PR 0.605 overlap 0.85 (new px advance 86, interior 72, interior AUC-PR 0.836)
+  fire_25410444 day  6 today 2021-08-05: advance AUC-PR 0.567 overlap 0.48 (new px advance 297, interior 103, interior AUC-PR 0.727)
+  fire_25295023 day  4 today 2021-07-13: advance AUC-PR 0.547 overlap 0.61 (new px advance 79, interior 95, interior AUC-PR 0.578)
+  fire_25294746 day 12 today 2021-07-20: advance AUC-PR 0.541 overlap 0.68 (new px advance 160, interior 162, interior AUC-PR 0.755)
+  fire_25294706 day 14 today 2021-08-06: advance AUC-PR 0.483 overlap 0.33 (new px advance 130, interior 127, interior AUC-PR 0.660)
+  fire_25410845 day  9 today 2021-08-16: advance AUC-PR 0.483 overlap 0.00 (new px advance 93, interior 46, interior AUC-PR 0.760)
+  fire_25410444 day 13 today 2021-08-12: advance AUC-PR 0.469 overlap 0.51 (new px advance 239, interior 68, interior AUC-PR 0.864)
+  fire_25295023 day  1 today 2021-07-10: advance AUC-PR 0.429 overlap 0.89 (new px advance 203, interior 123, interior AUC-PR 0.709)
+  fire_25294706 day 13 today 2021-08-05: advance AUC-PR 0.426 overlap 0.26 (new px advance 264, interior 103, interior AUC-PR 0.690)
+  fire_25295023 day  0 today 2021-07-09: advance AUC-PR 0.420 overlap 0.42 (new px advance 351, interior 88, interior AUC-PR 0.769)
+  fire_25295831 day  4 today 2021-07-13: advance AUC-PR 0.367 overlap 0.70 (new px advance 253, interior 41, interior AUC-PR 0.505)
+  fire_25294746 day 10 today 2021-07-18: advance AUC-PR 0.367 overlap 0.39 (new px advance 33, interior 35, interior AUC-PR 0.144)
+
+BEST ADVANCE FRAMES by overlap in the >0.4 zone (advance new px >= 30):
+  fire_25295831 day 16 today 2021-07-25: advance overlap 0.91 AUC-PR 0.235 (new px advance 58, interior 77)
+  fire_25295856 day  7 today 2021-07-25: advance overlap 0.90 AUC-PR 0.366 (new px advance 69, interior 47)
+  fire_25295023 day  1 today 2021-07-10: advance overlap 0.89 AUC-PR 0.429 (new px advance 203, interior 123)
+  fire_25410444 day 11 today 2021-08-10: advance overlap 0.89 AUC-PR 0.175 (new px advance 46, interior 28)
+  fire_25295023 day  2 today 2021-07-11: advance overlap 0.89 AUC-PR 0.223 (new px advance 98, interior 107)
+  fire_25295941 day  8 today 2021-07-12: advance overlap 0.85 AUC-PR 0.605 (new px advance 86, interior 72)
+  fire_25295831 day 14 today 2021-07-23: advance overlap 0.82 AUC-PR 0.217 (new px advance 33, interior 21)
+  fire_25295023 day  3 today 2021-07-12: advance overlap 0.78 AUC-PR 0.304 (new px advance 64, interior 87)
+  fire_25295909 day 12 today 2021-07-14: advance overlap 0.74 AUC-PR 0.130 (new px advance 38, interior 28)
+  fire_25295831 day  4 today 2021-07-13: advance overlap 0.70 AUC-PR 0.367 (new px advance 253, interior 41)
+  fire_25295816 day 10 today 2021-07-25: advance overlap 0.69 AUC-PR 0.082 (new px advance 32, interior 18)
+  fire_25294746 day 12 today 2021-07-20: advance overlap 0.68 AUC-PR 0.541 (new px advance 160, interior 162)
