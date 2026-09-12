@@ -101,7 +101,8 @@ def day_auc_pr(prob, y, prev):
     if yf.sum() == 0 or yf.sum() == yf.size: return None
     region = ~prev; new = (y & region)
     growth = float(average_precision_score(new[region].astype(int), prob[region])) if new.any() else float("nan")
-    return float(average_precision_score(yf, prob.ravel())), float(average_precision_score(yf, prev.ravel().astype(float))), growth
+    growth_pers = float(new[region].mean()) if new.any() else float("nan")   # a constant predictor's AP = prevalence: persistence's score there
+    return float(average_precision_score(yf, prob.ravel())), float(average_precision_score(yf, prev.ravel().astype(float))), growth, growth_pers
 
 # ---------------------------------------------------------------- rendering
 
@@ -148,7 +149,7 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     fig.text(0.03, 0.94, f"{name}   ·   day {k}/{T - 1}   ·   {dates[k]}", fontsize=13, fontweight="bold", color=P.INK)
     stats = f"burning: {int(cur.sum()):,} px   new today: {int((burn == 2).sum()):,} px   forecast made {dates[k - 1]}"
     m = day_auc_pr(prob, cur, prev)
-    if m: stats += f"   ·   AUC-PR full mask {m[0]:.3f} (persistence {m[1]:.3f})   ·   growth region {m[2]:.3f}"
+    if m and m[2] == m[2]: stats += f"   ·   growth-region AUC-PR {m[2]:.3f} (persistence {m[3]:.3f})"
     fig.text(0.03, 0.895, stats, fontsize=9.5, color=P.INK_2)
     if hold_text: fig.text(0.03, 0.855, hold_text, fontsize=11, fontweight="bold", color=P.ORANGE)
     fig.text(0.97, 0.895, f"window {(c1 - c0) * 0.375:.0f} × {(r1 - r0) * 0.375:.0f} km", fontsize=8.5, color=P.MUTED, ha="right")
