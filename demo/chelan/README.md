@@ -8,5 +8,7 @@ Caveat for the utility story: on this day the fire is in wilderness. Nothing of 
 (top pin: a $1k tap); the nearest real substation, Western (115 kV), is at P 9%. Use Redding (`demo/redding`) for the
 exposure story, this fire for the "the model knows where it goes" replay.
 
-Files: `demo_map.html` (same layers as Redding), `exposure_ranked.*` (09-07 forecast, unbuffered raster), `replay.gif` (days 9-33),
+Files: `demo_map.html` (same layers as Redding), `exposure_ranked.*` (09-07 forecast, unbuffered raster), `replay.gif` (all 40 forecast days,
+panels cropped to today's fire + new fire with 20% margin, water drawn light blue and verified P=0 on it, 6 s hold on the 2021-09-07 frame
+with the sweep numbers in the header), `replay_hold_day30_forecast_2021-09-07.png` (that frame),
 `forecast_dates.json`. Model: `wfts_only` baseline checkpoint; swap via `fsf.predict`.
