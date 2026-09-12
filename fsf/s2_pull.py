@@ -6,7 +6,7 @@
 For every /root/data/wfts/tif/{year}/fire_{id}/: bounds+CRS from any GeoTIFF (rioxarray), bbox -> EPSG:4326, fire start
 = earliest date in the filenames. Earth Search (element84, sentinel-2-l2a) items with eo:cloud_cover < 40 over the 4
 calendar months before the fire start, one timestep per month (oldest first); per timestep the per-pixel nanmedian of
-all scenes after SCL cloud/shadow masking, warped straight onto the event grid (average resampling, 10-60 m -> 375 m).
+all scenes after SCL cloud/shadow masking, resampled onto the event grid (COG overview read + average reproject).
 A month whose composite covers < MIN_VALID of the grid is widened backwards month by month (up to WIDEN_MAX extra
 months) before the timestep is given up (all-NaN) -- such events are listed in {out}/short_events.log.
 
@@ -89,19 +89,28 @@ def tile_of(it):
 
 
 def read_warped(href, grid, resampling, dtype):
-    """Warp one COG onto the event grid. Opens the coarsest overview that is still finer than the target pixel, so a
-    10 m band is read at 160 m (~1 MB) instead of full resolution (~240 MB): ~50x faster, same 375 m result."""
-    import rasterio
-    from rasterio.vrt import WarpedVRT
-    target = abs(grid.transform.a)
+    """Asset -> (H, W) on the event grid: decimated window read from the COG overviews at ~half the grid pixel size,
+    then reproject. ~30x faster than a WarpedVRT at 375 m, which pulls full-resolution tiles. 0 = nodata."""
+    import math, rasterio
+    from rasterio.transform import array_bounds
+    from rasterio.warp import reproject, transform_bounds
+    from rasterio.windows import Window, from_bounds
+    out = np.zeros((grid.H, grid.W), dtype)
     with rasterio.open(href) as src:
-        level = -1
-        for k, f in enumerate(src.overviews(1)):
-            if src.res[0] * f <= target: level = k
-    with rasterio.open(href, overview_level=level) if level >= 0 else rasterio.open(href) as src:
-        with WarpedVRT(src, crs=grid.crs, transform=grid.transform, width=grid.W, height=grid.H,
-                       resampling=resampling, src_nodata=0, nodata=0) as vrt:
-            return vrt.read(1).astype(dtype)
+        b = transform_bounds(grid.crs, src.crs, *array_bounds(grid.H, grid.W, grid.transform), densify_pts=21)
+        try:
+            w = from_bounds(*b, src.transform).intersection(Window(0, 0, src.width, src.height))
+        except Exception:
+            return out
+        if w.width < 1 or w.height < 1: return out
+        px = min((b[2] - b[0]) / grid.W, (b[3] - b[1]) / grid.H)   # grid pixel size in source units
+        f = max(1.0, px / 2 / src.res[0])
+        oh, ow = max(1, math.ceil(w.height / f)), max(1, math.ceil(w.width / f))
+        dec = src.read(1, window=w, out_shape=(oh, ow), resampling=resampling)
+        wt = src.window_transform(w); wt = wt * wt.scale(w.width / ow, w.height / oh)
+        reproject(dec, out, src_transform=wt, src_crs=src.crs, src_nodata=0, dst_transform=grid.transform, dst_crs=grid.crs,
+                  dst_nodata=0, resampling=resampling)
+    return out
 
 
 def read_scene(it, grid):
@@ -139,14 +148,14 @@ def composite(items, grid, pool):
     return med, float(np.isfinite(med[0]).mean())
 
 
-def select_scenes(items, t0, t1):
-    """items with t0 <= day < t1, capped to the least-cloudy MAX_SCENES_PER_TILE per MGRS tile."""
+def select_scenes(items, t0, t1, cap=MAX_SCENES_PER_TILE):
+    """items with t0 <= day < t1, capped to the least-cloudy `cap` per MGRS tile."""
     by_tile = {}
     for it in items:
         if t0 <= item_day(it) < t1: by_tile.setdefault(tile_of(it), []).append(it)
     keep = []
     for tile, its in by_tile.items():
-        keep += sorted(its, key=lambda it: it.properties.get("eo:cloud_cover", 100))[:MAX_SCENES_PER_TILE]
+        keep += sorted(its, key=lambda it: it.properties.get("eo:cloud_cover", 100))[:cap]
     return keep
 
 
@@ -166,11 +175,13 @@ def process_event(year, fire, root, out_dir, threads=16, overwrite=False):
         for i in range(N_MONTHS):
             t1 = shift_month(fire_start, -(N_MONTHS - 1 - i)); t0 = shift_month(t1, -1)
             ts = {"month": t0.strftime("%Y-%m"), "window": [t0.isoformat(), t1.isoformat()], "widened": 0, "n_scenes": 0, "valid": 0.0}
-            best, best_valid = None, 0.0
+            best, best_valid, seen = None, 0.0, set()
             for widen in range(WIDEN_MAX + 1):
                 w0 = shift_month(t0, -widen)
-                sel = select_scenes(items, w0, t1)
-                if widen and len(sel) == ts["n_scenes"]: continue   # nothing new in the wider window
+                sel = select_scenes(items, w0, t1, MAX_SCENES_PER_TILE * (widen + 1))   # wider window, proportionally more scenes
+                ids = frozenset(it.id for it in sel)
+                if widen and ids == seen: continue   # nothing new in the wider window
+                seen = ids
                 med, valid = composite(sel, grid, pool)
                 ts.update(widened=widen, window=[w0.isoformat(), t1.isoformat()], n_scenes=len(sel))
                 if valid > best_valid: best, best_valid = med, valid

@@ -1,0 +1,25 @@
+# Arm: WFTS + OlmoEarth-v1.2-Small post-trained (stage 2): encoder in the graph, last 2 blocks unfrozen,
+# head lr 1e-3 (x batch scaling), encoder lr 1e-5; patch embed + encodings frozen. Seeds run one after another.
+name: wfts_olmo_ft
+results_dir: /root/fsf/results
+wfts_cache: /root/data/wfts/cache/wfts.pt
+s2_root: /root/data/s2
+use_olmo: true
+stage: 2
+init_from: null           # e.g. /root/fsf/results/detail/wfts_olmo_frozen_s0_xxxxxx.pt to start from a stage-1 head
+save_model: true
+model: {width: 32, depth: 3, dropout: 0.1, proj_ch: 16}
+olmo: {model_id: OLMOEARTH_V1_2_SMALL, patch_size: 8, input_res: 10, unfreeze_blocks: 2, encoder_lr: 1.0e-5}
+train:
+  batch_size: 32
+  base_lr: 1.0e-3
+  base_batch: 32
+  warmup_steps: 100
+  weight_decay: 1.0e-4
+  loss: bce
+  pos_weight: 3.0
+  augment: true
+  max_epochs: 40
+  eval_every: 1
+  patience: 6
+  compile: false

@@ -1,0 +1,24 @@
+# Arm: WFTS + OlmoEarth-v1.2-Small frozen (stage 1). Embeddings from `python -m fsf.olmo cache /root/data/s2 <emb_cache>`;
+# a learned 1x1 conv projects D=384 -> proj_ch, upsampled and concatenated onto the 40 WFTS channels.
+name: wfts_olmo_frozen
+results_dir: /root/fsf/results
+wfts_cache: /root/data/wfts/cache/wfts.pt
+emb_cache: /root/data/wfts/cache/olmo_v1_2_small.pt
+use_olmo: true
+stage: 1
+save_model: true          # stage 2 starts from these head weights (init_from)
+model: {width: 32, depth: 3, dropout: 0.1, proj_ch: 16}
+olmo: {model_id: OLMOEARTH_V1_2_SMALL, patch_size: 8, input_res: 10}
+train:
+  batch_size: 64
+  base_lr: 1.0e-3
+  base_batch: 64
+  warmup_steps: 100
+  weight_decay: 1.0e-4
+  loss: bce
+  pos_weight: 3.0
+  augment: true
+  max_epochs: 100
+  eval_every: 2
+  patience: 10
+  compile: false
