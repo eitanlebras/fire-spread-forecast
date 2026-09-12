@@ -40,32 +40,47 @@ def summarize(df, col):
 
 # ---------------------------------------------------------------- AUC-PR bars
 
-def plot_auc_pr(df, split, metric, out_path):
+def arm_ramp(n):
+    """Ordinal blue ramp, light -> dark across the arms in report order (never lighter than step 250 on the light surface)."""
+    steps = P.SEQ_BLUE[3:]                                            # 250 .. 700
+    return [steps[int(round(i * (len(steps) - 1) / max(n - 1, 1)))] for i in range(n)]
+
+
+def plot_auc_pr(df, split, metric, out_path, y_max=0.35):
     col = f"{split}.{metric}"
     if col not in df: sys.exit(f"column {col} not in runs (have: {[c for c in df if c.startswith(split)]})")
     arms = arm_order(df["name"]); s = summarize(df, col).loc[arms]
     pers_col = f"{col}_persistence"; pers = float(df[pers_col].mean()) if pers_col in df else None
-    fig, ax = plt.subplots(figsize=(8.5, 4.6), dpi=150)
-    fig.subplots_adjust(left=0.10, right=0.97, top=0.82, bottom=0.20)
+    fig, ax = plt.subplots(figsize=(8, 4.6), dpi=150)
+    fig.subplots_adjust(left=0.10, right=0.97, top=0.82, bottom=0.16)
     x = np.arange(len(arms))
-    ax.bar(x, s["mean"], width=0.46, color=P.BLUE, zorder=3)
+    ax.bar(x, s["mean"], width=0.46, color=arm_ramp(len(arms)), zorder=3)
     ax.errorbar(x, s["mean"], yerr=s["ci"], fmt="none", ecolor=P.INK_2, elinewidth=1.2, capsize=4, capthick=1.2, zorder=4)
-    for xi, (m, c) in enumerate(zip(s["mean"], s["ci"])):
-        ax.text(xi, m + c + 0.012, f"{m:.3f}", ha="center", va="bottom", fontsize=9.5, color=P.INK, fontweight="bold")
-    refs = [(CONV_AE_AUC_PR, "Conv-AE baseline\n(Huot et al. 2022)", "--")]
-    if pers is not None: refs.append((pers, "persistence,\nsame pixels", "-"))
-    for y, label, ls in refs:                                    # reference lines, labelled in a right-hand margin so nothing overlaps a bar
+    refs = [(CONV_AE_AUC_PR, "Conv-AE baseline (Huot et al. 2022)", "--")]
+    if pers is not None: refs.append((pers, "persistence, same pixels", "-"))
+    x0, band = -0.55, 0.018                                      # band = height of one text line in data units at this figure size
+    for y, label, ls in refs:                                    # reference lines, labelled inline just above the line at the left edge
         ax.axhline(y, color=P.MUTED, lw=1, ls=ls, zorder=2)
-        ax.text(len(arms) - 0.3, y, f"{label}  {y:.3f}", ha="left", va="center", fontsize=8, color=P.INK_2, linespacing=1.15,
-                bbox=dict(facecolor=P.SURFACE, edgecolor="none", pad=1.5))
-    ax.set_xticks(x); ax.set_xticklabels([f"{ARM_LABELS.get(a, a)}\nn = {int(s.loc[a, 'n'])} seeds" for a in arms])
-    ax.set_xlim(-0.6, len(arms) + 0.9)
-    ax.set_ylim(0, max(1.0 if metric == "auc_pr" and s["mean"].max() > 0.8 else (s["mean"] + s["ci"]).max() * 1.35, CONV_AE_AUC_PR * 1.25))
+        ax.text(x0, y + 0.004, f"{label}  {y:.3f}", ha="left", va="bottom", fontsize=8, color=P.INK_2, zorder=6,
+                bbox=dict(facecolor=P.SURFACE, edgecolor="none", pad=1.2, alpha=0.9))
+    colors = arm_ramp(len(arms))
+    for xi, (m, c) in enumerate(zip(s["mean"], s["ci"])):
+        y_lab = m + c + 0.006
+        clash = xi < 2 and any(y_lab < y + 0.004 + band and y_lab + band > y for y, _, _ in refs)   # a reference label sits where the tip label would go
+        if clash:                                                # then label inside the bar, just under the error bar, ink chosen by bar luminance
+            rgb = matplotlib.colors.to_rgb(colors[xi]); dark = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2] < 0.55
+            ax.text(xi, m - c - 0.008, f"{m:.3f}", ha="center", va="top", fontsize=9.5, color=P.SURFACE if dark else P.INK, fontweight="bold", zorder=5)
+        else: ax.text(xi, y_lab, f"{m:.3f}", ha="center", va="bottom", fontsize=9.5, color=P.INK, fontweight="bold", zorder=5)
+    ax.set_xticks(x); ax.set_xticklabels([ARM_LABELS.get(a, a) for a in arms])
+    ax.set_xlim(x0 - 0.05, len(arms) - 0.4); ax.set_ylim(0, y_max)
+    top = float((s["mean"] + s["ci"]).max())
+    if top > y_max * 0.96: print(f"warning: a bar reaches {top:.3f}, at or above the y cap of {y_max}; pass y_max to plot_auc_pr to raise it")
     ax.yaxis.grid(True, zorder=0); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
     ax.set_ylabel("AUC-PR" if metric == "auc_pr" else metric)
     title = {"auc_pr": "Next-day fire spread, AUC-PR by arm", "auc_pr_growth_region": "AUC-PR on growth region only (pixels not burning at t)"}.get(metric, metric)
-    fig.text(0.10, 0.93, title, fontsize=13, fontweight="bold", color=P.INK)
-    fig.text(0.10, 0.875, f"{split} split · mean over seeds, error bars = 95% CI · fire-spread-forecast-v1-small", fontsize=9, color=P.INK_2)
+    n = s["n"].astype(int); seeds = f"{n.min()} seeds" if n.min() == n.max() else f"{n.min()}–{n.max()} seeds per arm"
+    fig.text(0.10, 0.93, title, fontsize=14, fontfamily="serif", fontweight="bold", color=P.INK)
+    fig.text(0.10, 0.875, f"{split} split · mean over {seeds}, error bars = 95% CI · fire-spread-forecast-v1-small", fontsize=9, color=P.INK_2)
     fig.savefig(out_path); plt.close(fig); print("wrote", out_path)
     return s
 
@@ -96,27 +111,36 @@ def load_reliability(detail_dir, split, run_ids=None):
     return pool_bins(rows), {a: float(np.mean(v)) for a, v in eces.items()}
 
 
-def plot_calibration(pooled, eces, arms, split, out_path):
+def plot_calibration(pooled, eces, arms, best, split, out_path):
+    """Two curves: the baseline (first arm in report order) and `best`; every other arm's ECE goes in a text block.
+    The reliability panel is drawn square so the diagonal is a true 45 degrees; the histogram pools all arms."""
     arms = [a for a in arms if a in pooled]
     if not arms: print("no reliability rows found; skipping calibration diagram"); return
-    fig, (ax, axn) = plt.subplots(2, 1, figsize=(6.2, 7.2), dpi=150, gridspec_kw={"height_ratios": [4, 1.1], "hspace": 0.08}, sharex=True)
-    fig.subplots_adjust(left=0.13, right=0.97, top=0.86, bottom=0.09)
+    shown = [arms[0]] + ([best] if best in arms and best != arms[0] else [])
+    others = [a for a in arms if a not in shown]
+    fw, fh = 6.2, 8.3; l, w = 0.13, 0.84                             # axes laid out in inches so the top panel is exactly square
+    ax_h = w * fw / fh; hist_h = 1.15 / fh; gap = 0.28 / fh; bottom = 0.62 / fh
+    fig = plt.figure(figsize=(fw, fh), dpi=150)
+    axn = fig.add_axes([l, bottom, w, hist_h]); ax = fig.add_axes([l, bottom + hist_h + gap, w, ax_h], sharex=axn)
     ax.plot([0, 1], [0, 1], color=P.AXIS, lw=1, ls="--", zorder=1)
-    for arm in arms:
-        r = np.asarray(pooled[arm]); c = arm_color(arm, arms)
+    for arm, c in zip(shown, P.CATEGORICAL):
+        r = np.asarray(pooled[arm])
         ax.plot(r[:, 1], r[:, 2], color=c, lw=2, marker="o", ms=5, mec=P.SURFACE, mew=1.2, zorder=3,
                 label=f"{ARM_LABELS.get(arm, arm)}   ECE {eces.get(arm, float('nan')):.3f}")
-    ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.set_ylabel("observed fire fraction")
-    ax.yaxis.grid(True, zorder=0); ax.set_axisbelow(True); ax.spines["left"].set_visible(False)
+    ax.set_xlim(0, 1); ax.set_ylim(0, 1); ax.set_aspect("equal", adjustable="box"); ax.set_ylabel("observed fire fraction")
+    ax.yaxis.grid(True, zorder=0); ax.set_axisbelow(True); ax.spines["left"].set_visible(False); ax.tick_params(labelbottom=False)
     ax.legend(loc="upper left", handlelength=1.6)
-    w = 0.8 / len(arms)
-    for i, arm in enumerate(arms):
-        r = np.asarray(pooled[arm]); bw = np.diff(np.append(r[:, 0], 1.0)) if len(r) > 1 else np.array([1.0])
-        axn.bar(r[:, 0] + bw * (0.1 + w * i), r[:, 3] / r[:, 3].sum(), width=bw * w * 0.85, align="edge", color=arm_color(arm, arms), zorder=3)
+    if others:
+        block = "ECE, other arms\n" + "\n".join(f"{ARM_LABELS.get(a, a)}   {eces.get(a, float('nan')):.3f}" for a in others)
+        ax.text(0.97, 0.03, block, transform=ax.transAxes, ha="right", va="bottom", fontsize=8.5, color=P.INK_2, linespacing=1.5)
+    allrows = np.asarray([r for a in arms for r in pooled[a]]); edges = np.unique(allrows[:, 0])
+    n = np.array([allrows[allrows[:, 0] == e, 3].sum() for e in edges]); bw = np.diff(np.append(edges, 1.0))
+    axn.bar(edges + bw * 0.06, n / n.sum(), width=bw * 0.88, align="edge", color=P.AXIS, zorder=3)
     axn.set_yscale("log"); axn.set_ylabel("share of pixels", fontsize=9); axn.set_xlabel("predicted probability (bin mean)")
     axn.yaxis.grid(True, zorder=0); axn.set_axisbelow(True); axn.spines["left"].set_visible(False); axn.tick_params(axis="y", labelsize=7.5)
-    fig.text(0.13, 0.955, "Calibration: predicted probability vs. observed fire fraction", fontsize=13, fontweight="bold", color=P.INK)
-    fig.text(0.13, 0.915, f"{split} split · bins pooled over seeds, weighted by pixel count · dashed = perfect calibration", fontsize=9, color=P.INK_2)
+    fig.text(l, 0.955, "Calibration: predicted vs. observed fire fraction", fontsize=14, fontfamily="serif", fontweight="bold", color=P.INK)
+    fig.text(l, 0.905, f"{split} split · bins pooled over seeds, weighted by pixel count\ndashed = perfect calibration · histogram = all arms pooled",
+             fontsize=9, color=P.INK_2, linespacing=1.5)
     fig.savefig(out_path); plt.close(fig); print("wrote", out_path)
 
 # ---------------------------------------------------------------- demo data
@@ -166,7 +190,7 @@ def main(argv=None):
         ddir = a.detail or os.path.join(os.path.dirname(a.runs) or ".", "detail")
         if not os.path.isdir(ddir): print(f"no detail dir at {ddir}; skipping calibration diagram"); return 0
         pooled, eces = load_reliability(ddir, a.split, set(df["run_id"]) if "run_id" in df else None)
-    plot_calibration(pooled, eces, arm_order(df["name"]), a.split, os.path.join(a.out, f"calibration{'_demo' if a.demo else ''}.png"))
+    plot_calibration(pooled, eces, arm_order(df["name"]), str(s["mean"].idxmax()), a.split, os.path.join(a.out, f"calibration{'_demo' if a.demo else ''}.png"))
     return 0
 
 
