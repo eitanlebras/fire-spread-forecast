@@ -25,7 +25,7 @@ def select(zip_path, n_per_year, seed=0):
     fires = {}
     for n in names:
         p = n.split("/")
-        if len(p) >= 4 and p[-1].endswith(".tif"): fires.setdefault((p[-3], p[-2]), []).append(n)
+        if len(p) >= 3 and p[-1].endswith(".tif") and p[-3].isdigit(): fires.setdefault((p[-3], p[-2]), []).append(n)
     rng = random.Random(seed); chosen = []
     for year in sorted({y for y, _ in fires}):
         ids = sorted(f for y, f in fires if y == year and len(fires[(y, f)]) >= 3)
