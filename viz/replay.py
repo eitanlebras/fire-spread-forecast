@@ -119,7 +119,7 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     r0, r1, c0, c1 = crop_box(prev, cur, H, W); water = WATER_MASK.get(name)
     burn = np.where(cur & prev, 1, np.where(cur, 2, 0)).astype(np.int8)
     fig = plt.figure(figsize=(11, 6.2), dpi=dpi)
-    gs = fig.add_gridspec(2, 2, height_ratios=[1, 0.06], left=0.03, right=0.97, top=0.82, bottom=0.12, wspace=0.10, hspace=0.05)
+    gs = fig.add_gridspec(2, 2, height_ratios=[1, 0.06], left=0.03, right=0.97, top=0.80, bottom=0.12, wspace=0.10, hspace=0.05)
     axL, axR = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
     cax = fig.add_subplot(gs[1, 0])
     for ax in (axL, axR):
@@ -140,13 +140,13 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=N
     cb.set_ticks([0, 0.25, 0.5, 0.75, 1]); cax.tick_params(labelsize=8, length=0, colors=P.MUTED)
     handles = [Patch(facecolor=c, edgecolor=P.GRID, label=l) for c, l in zip(P.BURN_COLORS[1:], P.BURN_LABELS[1:])]
     handles.append(Line2D([0], [0], color=P.INK_2, lw=0.9, label="yesterday's perimeter (both panels)"))
-    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(0, -0.02), ncol=3, handlelength=1.2, columnspacing=1.2, fontsize=8.5)
+    axR.legend(handles=handles, loc="upper left", bbox_to_anchor=(-0.02, -0.02), ncol=3, handlelength=1.0, columnspacing=0.8, handletextpad=0.5, fontsize=7.8, frameon=False)
     fig.text(0.03, 0.94, f"{name}   ·   day {k}/{T - 1}   ·   {dates[k]}", fontsize=13, fontweight="bold", color=P.INK)
     stats = f"burning: {int(cur.sum()):,} px   new today: {int((burn == 2).sum()):,} px   forecast made {dates[k - 1]}"
     m = day_auc_pr(prob, cur, prev)
     if m: stats += f"   ·   AUC-PR today {m[0]:.3f} (persistence {m[1]:.3f})"
     fig.text(0.03, 0.895, stats, fontsize=9.5, color=P.INK_2)
-    if hold_text: fig.text(0.97, 0.94, hold_text, fontsize=11, fontweight="bold", color=P.ORANGE, ha="right")
+    if hold_text: fig.text(0.03, 0.855, hold_text, fontsize=11, fontweight="bold", color=P.ORANGE)
     fig.text(0.97, 0.895, f"window {(c1 - c0) * 0.375:.0f} × {(r1 - r0) * 0.375:.0f} km", fontsize=8.5, color=P.MUTED, ha="right")
     fig.text(0.97, 0.03, "fire-spread-forecast-v1-small", fontsize=8, color=P.MUTED, ha="right")
     if placeholder: fig.text(0.03, 0.03, "placeholder probabilities: persistence + blurred halo around yesterday's fire, not a model", fontsize=8, color=P.MUTED)
