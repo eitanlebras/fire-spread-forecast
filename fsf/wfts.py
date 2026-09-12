@@ -8,8 +8,10 @@ Reuses the authors' preprocessing (stats, degree features) from github.com/Sebas
 Channels stored (24): the 23 raw bands after the authors' preprocessing (active-fire time in hours, sin of degree
 features, standardized with their 2018+2019 stats, NaN->0; landcover kept as its integer class in channel 16) plus
 the binary active-fire mask. Landcover is one-hot expanded (17 classes) on the GPU at load time, giving the authors'
-40-feature input. Target: next day's active fire (>0). Padded pixels get target -1 (excluded), like NDWS uncertain.
-Split = the authors' fold 0: train 2018+2019, val 2020, test 2021.
+40-feature input. Target: next day's active fire (>0). Padded pixels get target -1 (excluded from loss and metrics),
+like NDWS uncertain. Split = the authors' fold 0: train 2018+2019, eval 2020, test 2021 (no random splitting across years).
+Tiles: each daily pair is cut into non-overlapping 128x128 windows; a window is kept when it has active fire in the input
+or in the target (the authors' crop preference), applied identically to all three splits.
 """
 import sys, os, json, glob, zipfile, subprocess, random, numpy as np, torch
 sys.path.insert(0, os.environ.get("WFTS_CODE", "/root/WildfireSpreadTS_code"))
@@ -81,14 +83,15 @@ def build_cache(root, out_path, tile=TILE):
             for r in range(nr):
                 for c in range(nc):
                     xw = xt[:, r * tile:(r + 1) * tile, c * tile:(c + 1) * tile]; yw = yt[r * tile:(r + 1) * tile, c * tile:(c + 1) * tile]
-                    if split == "train" and not (xw[-1].any() or (yw == 1).any()): continue   # authors' crop preference: fire in input or target
+                    if not (xw[-1].any() or (yw == 1).any()): continue   # fire in input or target, same rule for every split
                     X[split].append(torch.from_numpy(xw).half()); Y[split].append(torch.from_numpy(yw)); META[split].append((fi, t, r * tile, c * tile))
         print(f"[{fi+1}/{len(fire_dirs)}] {year}/{fire} days={len(paths)} {H}x{W} split={split} tiles_so_far={sum(len(v) for v in X.values())}", flush=True)
     blob = {"names": ["wfts_%02d" % i for i in range(23)] + ["binary_af"], "feature_set": "wfts", "landcover_idx": LANDCOVER_IDX, "fires": fires_meta,
             "vec_idx": [], "stats": {"means": means.tolist(), "stds": stds.tolist()}}
     for s in SPLIT:
         blob[f"x_{s}"] = torch.stack(X[s]); blob[f"y_{s}"] = torch.stack(Y[s]); blob[f"meta_{s}"] = torch.tensor(META[s], dtype=torch.int32)
-        print(f"{s}: x={tuple(blob[f'x_{s}'].shape)} pos_rate={(blob[f'y_{s}']==1).float().mean():.5f}")
+        yv = blob[f"y_{s}"]; print(f"{s}: tiles={len(yv)} fires={len({m[0] for m in META[s]})} pos_rate={(yv==1).float().mean():.5f} padded(-1)={(yv==-1).float().mean():.4f}")
+    tot = sum(len(Y[s]) for s in SPLIT); print("split fractions:", {s: round(len(Y[s]) / tot, 3) for s in SPLIT})
     os.makedirs(os.path.dirname(out_path), exist_ok=True); torch.save(blob, out_path)
     json.dump(fires_meta, open(os.path.join(os.path.dirname(out_path), "wfts_fires.json"), "w"), indent=1)
     print("saved", out_path)

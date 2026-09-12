@@ -10,7 +10,7 @@ URL = "https://zenodo.org/api/records/8006177/files/WildfireSpreadTS.zip/content
 
 class RangeFile(io.RawIOBase):
     """Seekable read-only file over HTTP ranges with a chunk cache. zipfile reads member-by-member."""
-    def __init__(self, url, chunk=32 << 20):
+    def __init__(self, url, chunk=64 << 20):
         self.url, self.chunk, self.pos, self.s = url, chunk, 0, requests.Session()
         r = self.s.head(url, allow_redirects=True, timeout=60); self.url = r.url
         self.size = int(r.headers["Content-Length"]); self.cache = {}
@@ -23,11 +23,13 @@ class RangeFile(io.RawIOBase):
         if i not in self.cache:
             if len(self.cache) > 8: self.cache.pop(next(iter(self.cache)))
             a, b = i * self.chunk, min((i + 1) * self.chunk, self.size) - 1
-            for attempt in range(6):
+            for attempt in range(12):
                 try:
-                    r = self.s.get(self.url, headers={"Range": f"bytes={a}-{b}"}, timeout=120); r.raise_for_status(); self.cache[i] = r.content; break
+                    r = self.s.get(self.url, headers={"Range": f"bytes={a}-{b}"}, timeout=180); r.raise_for_status(); self.cache[i] = r.content; break
                 except Exception as e:
-                    if attempt == 5: raise
+                    if attempt == 11: raise
+                    wait = min(120, 5 * 2 ** attempt) if "429" in str(e) else 5
+                    print(f"  range {a}-{b} attempt {attempt}: {str(e)[:60]} -> sleep {wait}s", flush=True); import time; time.sleep(wait)
         return self.cache[i]
     def read(self, n=-1):
         if n < 0: n = self.size - self.pos

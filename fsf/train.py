@@ -69,11 +69,11 @@ class Ensemble:
         return vmap(self._f, in_dims=(0, 0, 0), randomness="different")(self.params, self.buffers, x)
 
     @torch.no_grad()
-    def predict(self, x, bs=1024):  # shared x (N,C,H,W) -> probs (S,N,H,W) fp32
+    def predict(self, x, bs=256):  # shared x (N,C,H,W) -> probs (S,N,H,W) fp32; chunk keeps S*bs activations small
         self.base.eval(); out = []
         for i in range(0, len(x), bs):
             with torch.autocast("cuda", dtype=torch.bfloat16):
-                out.append(torch.sigmoid(vmap(self._f, in_dims=(0, 0, None))(self.params, self.buffers, x[i:i + bs]).float())[:, :, 0])
+                out.append(torch.sigmoid(vmap(self._f, in_dims=(0, 0, None))(self.params, self.buffers, x[i:i + bs].float()).float())[:, :, 0])
         self.base.train(); return torch.cat(out, 1)
 
     def state(self, i): return {k: v[i].detach().clone() for k, v in self.params.items()}
@@ -120,7 +120,7 @@ def main():
         tl = torch.zeros(S, device=dev)
         for _ in range(spe):
             idx = torch.stack([torch.randint(0, N, (bs,), device=dev, generator=g) for g in gens])   # (S,B) per-seed sampling
-            xb, yb = xtr[idx], ytr[idx]                                                                 # (S,B,C,H,W), (S,B,H,W)
+            xb, yb = xtr[idx].float(), ytr[idx]                                                         # (S,B,C,H,W), (S,B,H,W); fp16 cache -> fp32
             if tc["augment"]:
                 for i in range(S): xb[i], yb[i] = D.dihedral(xb[i], yb[i], int(aug_rng[i].integers(8)), vec_idx)
             losses = step_c(xb, yb)
