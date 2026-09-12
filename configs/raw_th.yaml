@@ -5,7 +5,7 @@ features: ndws12_raw_th
 save_model: false
 model: {width: 32, depth: 3, dropout: 0.1}
 train:
-  batch_size: 512
+  batch_size: 256
   base_lr: 1.0e-3      # lr = base_lr * batch_size / base_batch (linear scaling)
   base_batch: 64
   warmup_steps: 100

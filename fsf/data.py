@@ -60,17 +60,34 @@ class Stats:
         return np.stack(out, 1).astype(np.float32)  # (N,C,H,W)
 
 
-def load(root, feature_set, device, splits=("train", "eval", "test")):
-    names = FEATURE_SETS[feature_set]
-    data, stats = {}, None
-    for sp in splits:
+def build_cache(root, feature_set, out_path):
+    """Compute features once (CPU), save fp16 inputs + int8 targets. Trainers only ever torch.load this."""
+    names = FEATURE_SETS[feature_set]; blob, stats = {"names": names, "feature_set": feature_set}, None
+    for sp in ("train", "eval", "test"):
         chans, target = build_channels(open_split(root, sp))
         if stats is None: stats = Stats(chans, names)
-        x = torch.from_numpy(stats.apply(chans, names)).to(device)
-        y = torch.from_numpy(target).to(device)
-        data[sp] = (x, y)
-    vec_idx = [(names.index(a), names.index(b)) for a, b in VECTOR_PAIRS if a in names and b in names]
-    return data, names, vec_idx, stats
+        blob[f"x_{sp}"] = torch.from_numpy(stats.apply(chans, names)).half()
+        blob[f"y_{sp}"] = torch.from_numpy(target).to(torch.int8)
+    blob["stats"] = stats.s; blob["vec_idx"] = [(names.index(a), names.index(b)) for a, b in VECTOR_PAIRS if a in names and b in names]
+    os.makedirs(os.path.dirname(out_path), exist_ok=True); torch.save(blob, out_path)
+    print(f"cached {feature_set}: C={len(names)} train={tuple(blob['x_train'].shape)} -> {out_path}")
+
+
+def cache_path(root, feature_set): return f"{root}/cache/{feature_set}.pt"
+
+
+def load(root, feature_set, device):
+    """GPU-resident dataset from the fp16 cache. Returns data[split] = (x fp16 (N,C,H,W), y int8 (N,H,W))."""
+    p = cache_path(root, feature_set)
+    if not os.path.exists(p): build_cache(root, feature_set, p)
+    b = torch.load(p)
+    data = {sp: (b[f"x_{sp}"].to(device), b[f"y_{sp}"].to(device)) for sp in ("train", "eval", "test")}
+    return data, b["names"], b["vec_idx"], b["stats"]
+
+
+if __name__ == "__main__":  # python -m fsf.data ROOT feature_set [...]  -> build caches
+    import sys
+    for fs in sys.argv[2:]: build_cache(sys.argv[1], fs, cache_path(sys.argv[1], fs))
 
 
 def dihedral(x, y, k, vec_idx):

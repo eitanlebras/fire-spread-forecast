@@ -2,8 +2,9 @@ import torch, torch.nn as nn
 
 
 def block(i, o, p):
-    return nn.Sequential(nn.Conv2d(i, o, 3, padding=1), nn.BatchNorm2d(o), nn.ReLU(inplace=True),
-                         nn.Conv2d(o, o, 3, padding=1), nn.BatchNorm2d(o), nn.ReLU(inplace=True), nn.Dropout2d(p))
+    # GroupNorm (no running stats): trainable under torch.func.vmap across seeds, and batch-size independent.
+    return nn.Sequential(nn.Conv2d(i, o, 3, padding=1), nn.GroupNorm(8, o), nn.ReLU(),
+                         nn.Conv2d(o, o, 3, padding=1), nn.GroupNorm(8, o), nn.ReLU(), nn.Dropout2d(p))
 
 
 class UNet(nn.Module):
