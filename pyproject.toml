@@ -16,6 +16,8 @@ dependencies = [
     "rasterio",
     "pystac-client",
     "torchvision",
+    "rioxarray",
+    "pystac-client",
 ]
 
 [tool.uv]
