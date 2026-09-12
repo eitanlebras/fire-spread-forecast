@@ -221,7 +221,7 @@ def stage2(cfg, seeds, dev):
                 with torch.autocast("cuda", dtype=torch.bfloat16): logits = model(xb, sb, mo, yr)
                 loss = loss_fn(logits, yb, tc["loss"], tc["pos_weight"])
                 opt.zero_grad(set_to_none=True); loss.backward()
-                torch.nn.utils.clip_grad_norm_([p for gr in groups for p in gr["params"]], 1.0); opt.step(); sched.step(); tl += float(loss)
+                torch.nn.utils.clip_grad_norm_([p for gr in groups for p in gr["params"]], 1.0); opt.step(); sched.step(); tl += loss.detach().item()
             if (ep + 1) % tc["eval_every"] == 0:
                 pev = predict(model, xev, yev, mev); ev = float(auc_pr_torch(pev[yev_t], yev_pos)); tl /= spe
                 hist.append({"epoch": ep, "train_loss": tl, "eval_auc_pr": ev})
