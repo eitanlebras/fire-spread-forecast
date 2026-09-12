@@ -1,0 +1,149 @@
+ 1. MT GATE JUNCTION             69 kV substation, P 65%            P 65%                       $7.1M
+ 2. MT GATE                      69 kV substation, P 62%            P 62%                       $6.7M
+ 3. STILLWATER                   69 kV substation, P 29%            P 29%                       $3.2M
+ 4. line 115 kV #313076          5.5 of 23 mi above 40%             worst segment 66%           $1.9M
+ 5. CASCADE                      115 kV substation, P 5%            P 5%                        $497k
+ 6. UNKNOWN309844                69 kV substation, P 4%             P 4%                        $391k
+ 7. FLANNIGAN                    230 kV substation, P 1%            P 1%                        $108k
+ 8. KNUAF                        69 kV substation, P 1%             P 1%                         $87k
+ 9. PACIFIC GAS & ELECTRIC COMPANY 500 kV #304311 0.0 of 41 mi above 40%             worst segment 12%            $72k
+10. PACIFIC GAS & ELECTRIC COMPANY 500 kV #308400 0.0 of 41 mi above 40%             worst segment 12%            $66k
+11. line 500 kV #311473          0.0 of 25 mi above 40%             worst segment 18%            $63k
+12. line 500 kV #306131          0.0 of 25 mi above 40%             worst segment 18%            $62k
+13. PACIFIC GAS & ELECTRIC COMPANY 500 kV #308797 0.0 of 12 mi above 40%             worst segment 12%            $52k
+14. PACIFIC GAS & ELECTRIC COMPANY 230 kV #311718 0.0 of 42 mi above 40%             worst segment 22%            $47k
+15. UNKNOWN304670                69 kV substation, P 0%             P 0%                         $41k
+16. PACIFIC GAS & ELECTRIC COMPANY 230 kV #305914 0.0 of 10 mi above 40%             worst segment 22%            $38k
+17. TAP305477                    60 kV substation, P 0%             P 0%                         $35k
+18. TAP310873                    60 kV substation, P 0%             P 0%                         $34k
+19. line 230 kV #309773          0.0 of 15 mi above 40%             worst segment 11%            $32k
+20. PACIFIC GAS & ELECTRIC COMPANY 230 kV #310514 0.0 of 2 mi above 40%              worst segment 20%            $31k
+21. PACIFIC GAS & ELECTRIC COMPANY 230 kV #307098 0.0 of 13 mi above 40%             worst segment 15%            $28k
+22. PACIFIC GAS & ELECTRIC COMPANY 230 kV #305651 0.0 of 13 mi above 40%             worst segment 15%            $28k
+23. PACIFIC GAS & ELECTRIC COMPANY 230 kV #305575 0.0 of 13 mi above 40%             worst segment 15%            $28k
+24. PACIFIC GAS & ELECTRIC COMPANY 230 kV #303841 0.0 of 13 mi above 40%             worst segment 15%            $28k
+25. line 230 kV #311237          0.0 of 29 mi above 40%             worst segment 12%            $24k
+26. line 230 kV #308370          0.0 of 30 mi above 40%             worst segment 2%             $23k
+27. line 230 kV #305639          0.0 of 30 mi above 40%             worst segment 2%             $22k
+28. PACIFIC GAS & ELECTRIC COMPANY 230 kV #310706 0.0 of 12 mi above 40%             worst segment 12%            $22k
+29. line 500 kV #310067          0.0 of 73 mi above 40%             worst segment 0%             $21k
+30. HATCHET RIDGE WIND           69 kV substation, P 0%             P 0%                         $19k
+31. COW CREEK                    69 kV substation, P 0%             P 0%                         $16k
+32. line 115 kV #300628          0.0 of 14 mi above 40%             worst segment 2%             $16k
+33. KESWICK                      230 kV substation, P 0%            P 0%                         $13k
+34. PACIFIC GAS & ELECTRIC COMPANY 230 kV #305309 0.0 of 3 mi above 40%              worst segment 2%             $12k
+35. REU 115 kV #304285           0.0 of 6 mi above 40%              worst segment 1%             $11k
+36. COLEMAN                      69 kV substation, P 0%             P 0%                         $11k
+37. BELTLINE RD                  69 kV substation, P 0%             P 0%                         $11k
+38. DESCHUTES                    69 kV substation, P 0%             P 0%                         $11k
+39. SHASTA                       230 kV substation, P 0%            P 0%                         $11k
+40. EAST REDDING                 69 kV substation, P 0%             P 0%                          $9k
+41. COLEMAN HATCHERY             69 kV substation, P 0%             P 0%                          $9k
+42. line 230 kV #301409          0.0 of 6 mi above 40%              worst segment 1%              $9k
+43. COTTONWOOD                   230 kV substation, P 0%            P 0%                          $8k
+44. PACIFIC GAS & ELECTRIC COMPANY 230 kV #308122 0.0 of 34 mi above 40%             worst segment 0%              $8k
+45. INSKIP                       69 kV substation, P 0%             P 0%                          $7k
+46. PACIFIC GAS & ELECTRIC COMPANY 230 kV #306904 0.0 of 34 mi above 40%             worst segment 0%              $7k
+47. PACIFIC GAS & ELECTRIC COMPANY 230 kV #312980 0.0 of 34 mi above 40%             worst segment 0%              $7k
+48. WINTUN                       69 kV substation, P 0%             P 0%                          $7k
+49. TAP310901                    115 kV substation, P 0%            P 0%                          $6k
+50. SULPHUR                      69 kV substation, P 0%             P 0%                          $6k
+51. REU 115 kV #301201           0.0 of 4 mi above 40%              worst segment 1%              $6k
+52. line 115 kV #309789          0.0 of 28 mi above 40%             worst segment 0%              $5k
+53. REU 115 kV #313186           0.0 of 6 mi above 40%              worst segment 1%              $5k
+54. SIGNAL                       69 kV substation, P 0%             P 0%                          $5k
+55. REU 115 kV #309899           0.0 of 9 mi above 40%              worst segment 0%              $5k
+56. SHOTGUN CREEK                69 kV substation, P 0%             P 0%                          $5k
+57. OLINDA                       500 kV substation, P 0%            P 0%                          $5k
+58. JESSUP TAP 1                 115 kV substation, P 0%            P 0%                          $4k
+59. line 115 kV #312557          0.0 of 33 mi above 40%             worst segment 0%              $4k
+60. AIRPORT RD 1                 69 kV substation, P 0%             P 0%                          $4k
+61. AIRPORT                      230 kV substation, P 0%            P 0%                          $4k
+62. UNKNOWN300122                69 kV substation, P 0%             P 0%                          $4k
+63. KESWICK                      69 kV substation, P 0%             P 0%                          $4k
+64. PANORAMA                     115 kV substation, P 0%            P 0%                          $4k
+65. EUREKA WAY                   69 kV substation, P 0%             P 0%                          $4k
+66. SLATE CREEK                  69 kV substation, P 0%             P 0%                          $3k
+67. UNKNOWN205359                69 kV substation, P 0%             P 0%                          $3k
+68. PACIFICORP 115 kV #310559    0.0 of 20 mi above 40%             worst segment 0%              $3k
+69. TAP302762                    60 kV substation, P 0%             P 0%                          $3k
+70. TEXAS SPRINGS                69 kV substation, P 0%             P 0%                          $3k
+71. JESSUP                       115 kV substation, P 0%            P 0%                          $3k
+72. SPRING CREEK                 230 kV substation, P 0%            P 0%                          $3k
+73. PACIFIC GAS & ELECTRIC COMPANY 115 kV #306812 0.0 of 15 mi above 40%             worst segment 0%              $3k
+74. PIT 6                        230 kV substation, P 0%            P 0%                          $3k
+75. KILARC                       69 kV substation, P 0%             P 0%                          $2k
+76. TRINITY                      230 kV substation, P 0%            P 0%                          $2k
+77. CHURN                        69 kV substation, P 0%             P 0%                          $2k
+78. UNKNOWN305837                115 kV substation, P 0%            P 0%                          $2k
+79. TAP310705                    115 kV substation, P 0%            P 0%                          $2k
+80. TAP308090                    115 kV substation, P 0%            P 0%                          $2k
+81. TAP307873                    115 kV substation, P 0%            P 0%                          $2k
+82. TAP308126                    115 kV substation, P 0%            P 0%                          $2k
+83. PIT 7                        230 kV substation, P 0%            P 0%                          $2k
+84. UNKNOWN205361                69 kV substation, P 0%             P 0%                          $2k
+85. REDDING POWER                69 kV substation, P 0%             P 0%                          $2k
+86. VOLTA 1                      69 kV substation, P 0%             P 0%                          $2k
+87. ANTLER                       69 kV substation, P 0%             P 0%                          $2k
+88. line 230 kV #308952          0.0 of 17 mi above 40%             worst segment 0%              $2k
+89. TRINITY DAM                  69 kV substation, P 0%             P 0%                          $2k
+90. WAPA 230 kV #303850          0.0 of 11 mi above 40%             worst segment 0%              $2k
+91. ANDERSON                     115 kV substation, P 0%            P 0%                          $2k
+92. PIT 5                        230 kV substation, P 0%            P 0%                          $2k
+93. PACIFIC GAS & ELECTRIC COMPANY 230 kV #300178 0.0 of 9 mi above 40%              worst segment 0%              $2k
+94. JAMES B. BLACK               230 kV substation, P 0%            P 0%                          $2k
+95. MOORE RD                     69 kV substation, P 0%             P 0%                          $2k
+96. CASTELLA                     69 kV substation, P 0%             P 0%                          $2k
+97. JAMES BLACK TAP              230 kV substation, P 0%            P 0%                          $2k
+98. PIT 5 TAP                    230 kV substation, P 0%            P 0%                          $2k
+99. line 230 kV #305078          0.0 of 10 mi above 40%             worst segment 0%              $1k
+100. WHISKEYTOWN                  69 kV substation, P 0%             P 0%                          $1k
+101. COVE RD                      69 kV substation, P 0%             P 0%                          $1k
+102. PIT 4                        230 kV substation, P 0%            P 0%                          $1k
+103. CARR                         230 kV substation, P 0%            P 0%                          $1k
+104. PACIFIC GAS & ELECTRIC COMPANY 115 kV #304650 0.0 of 5 mi above 40%              worst segment 0%              $1k
+105. BENTON                       69 kV substation, P 0%             P 0%                          $1k
+106. line 230 kV #301604          0.0 of 3 mi above 40%              worst segment 0%              $1k
+107. ROUND MOUNTAIN               500 kV substation, P 0%            P 0%                          $1k
+108. FRENCH GULCH                 69 kV substation, P 0%             P 0%                          $1k
+109. REU 115 kV #300039           0.0 of 4 mi above 40%              worst segment 0%              $1k
+110. CEDAR CREEK                  69 kV substation, P 0%             P 0%                          $1k
+111. PACIFIC GAS & ELECTRIC COMPANY 230 kV #310970 0.0 of 11 mi above 40%             worst segment 0%             $950
+112. GIRVAN                       69 kV substation, P 0%             P 0%                         $860
+113. PACIFIC GAS & ELECTRIC COMPANY 115 kV #306394 0.0 of 3 mi above 40%              worst segment 0%             $858
+114. line 230 kV #307073          0.0 of 13 mi above 40%             worst segment 0%             $836
+115. REU 115 kV #305051           0.0 of 8 mi above 40%              worst segment 0%             $835
+116. PACIFIC GAS & ELECTRIC COMPANY 230 kV #312855 0.0 of 2 mi above 40%              worst segment 0%             $511
+117. REDDING ELECTRIC UTILITY 230 kV #310179 0.0 of 3 mi above 40%              worst segment 0%             $509
+118. REU 115 kV #312166           0.0 of 3 mi above 40%              worst segment 0%             $495
+119. REU 115 kV #307455           0.0 of 5 mi above 40%              worst segment 0%             $470
+120. PACIFICORP 115 kV #204001    0.0 of 3 mi above 40%              worst segment 0%             $345
+121. REDDING ELECTRIC UTILITY 115 kV #309777 0.0 of 1 mi above 40%              worst segment 0%             $341
+122. PACIFIC GAS & ELECTRIC COMPANY 230 kV #304693 0.0 of 8 mi above 40%              worst segment 0%             $324
+123. REDDING ELECTRIC UTILITY 115 kV #308420 0.0 of 2 mi above 40%              worst segment 0%             $319
+124. PACIFIC GAS & ELECTRIC COMPANY 230 kV #301934 0.0 of 7 mi above 40%              worst segment 0%             $281
+125. PACIFIC GAS & ELECTRIC COMPANY 230 kV #303705 0.0 of 7 mi above 40%              worst segment 0%             $257
+126. line 230 kV #306018          0.0 of 5 mi above 40%              worst segment 0%             $253
+127. REDDING ELECTRIC UTILITY 115 kV #310881 0.0 of 3 mi above 40%              worst segment 0%             $243
+128. line 230 kV #312358          0.0 of 5 mi above 40%              worst segment 0%             $228
+129. line 230 kV #310454          0.0 of 3 mi above 40%              worst segment 0%             $194
+130. PACIFIC GAS & ELECTRIC COMPANY 230 kV #302778 0.0 of 3 mi above 40%              worst segment 0%             $187
+131. PACIFIC GAS & ELECTRIC COMPANY 115 kV #305350 0.0 of 1 mi above 40%              worst segment 0%             $145
+132. REDDING ELECTRIC UTILITY 115 kV #310502 0.0 of 1 mi above 40%              worst segment 0%              $94
+133. PACIFIC GAS & ELECTRIC COMPANY 230 kV #302686 0.0 of 1 mi above 40%              worst segment 0%              $43
+134. REDDING ELECTRIC UTILITY 115 kV #300213 0.0 of 0 mi above 40%              worst segment 0%               $0
+135. REDDING ELECTRIC UTILITY 115 kV #307345 0.0 of 0 mi above 40%              worst segment 0%               $0
+136. REDDING ELECTRIC UTILITY 115 kV #302499 0.0 of 0 mi above 40%              worst segment 0%               $0
+137. REDDING ELECTRIC UTILITY 115 kV #308223 0.0 of 0 mi above 40%              worst segment 0%               $0
+138. REDDING ELECTRIC UTILITY 115 kV #312061 0.0 of 0 mi above 40%              worst segment 0%               $0
+139. REDDING ELECTRIC UTILITY 115 kV #312597 0.0 of 0 mi above 40%              worst segment 0%               $0
+140. TAP205360                    69 kV substation, P 0%             P 0%                           $0
+141. CRAG VIEW                    115 kV substation, P 0%            P 0%                           $0
+142. TAP302660                    60 kV substation, P 0%             P 0%                           $0
+143. UNKNOWN301802                69 kV substation, P 0%             P 0%                           $0
+144. DOG CREEK                    69 kV substation, P 0%             P 0%                           $0
+145. PIT 7 TAP                    230 kV substation, P 0%            P 0%                           $0
+146. UNKNOWN303040                69 kV substation, P 0%             P 0%                           $0
+147. WHITMORE                     69 kV substation, P 0%             P 0%                           $0
+148. NUTGLADE                     69 kV substation, P 0%             P 0%                           $0
+149. TAP307862                    60 kV substation, P 0%             P 0%                           $0
