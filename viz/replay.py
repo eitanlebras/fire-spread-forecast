@@ -38,7 +38,11 @@ def load_wfts_fire(fire_dir):
         masks.append(np.nan_to_num(af, nan=0.0) > 0)
         dates.append(os.path.basename(p).split("_")[0].replace(".tif", ""))
     name = "/".join(os.path.normpath(fire_dir).split(os.sep)[-2:])   # <year>/<fire_id>
+    with rasterio.open(paths[0]) as ds: WATER_MASK[name] = np.nan_to_num(ds.read(17), nan=0) == 17   # land-cover band, class 17 = water
     return np.stack(masks), dates, name
+
+
+WATER_MASK = {}   # name -> (H,W) bool, filled by load_wfts_fire
 
 
 def load_masks_file(path):
@@ -97,10 +101,22 @@ def day_auc_pr(prob, y, prev):
 
 # ---------------------------------------------------------------- rendering
 
-def render_frame(k, masks, probs, dates, name, placeholder, dpi=110):
-    """One frame for day k (1..T-1): forecast for day k | observed day k. Returns an RGB uint8 array."""
+def crop_box(prev, cur, H, W, margin=0.2, min_half=40):
+    """Rows/cols window around today's fire + tomorrow's new fire with `margin` extra on each side (at least min_half px)."""
+    m = prev | cur
+    if not m.any(): return 0, H, 0, W
+    r, c = np.where(m); r0, r1, c0, c1 = r.min(), r.max(), c.min(), c.max()
+    hh, hw = max(min_half, (r1 - r0) * (0.5 + margin)), max(min_half, (c1 - c0) * (0.5 + margin)); half = max(hh, hw)   # square window
+    cy, cx = (r0 + r1) / 2, (c0 + c1) / 2
+    return int(max(0, cy - half)), int(min(H, cy + half)), int(max(0, cx - half)), int(min(W, cx + half))
+
+
+def render_frame(k, masks, probs, dates, name, placeholder, dpi=110, hold_text=None):
+    """One frame for day k (1..T-1): forecast for day k | observed day k. Returns an RGB uint8 array.
+    Both panels are cropped to yesterday's fire + today's new fire (+20 %); water (land-cover class 17) is drawn light blue."""
     T, H, W = masks.shape
     prev, cur, prob = masks[k - 1], masks[k], probs[k - 1]
+    r0, r1, c0, c1 = crop_box(prev, cur, H, W); water = WATER_MASK.get(name)
     burn = np.where(cur & prev, 1, np.where(cur, 2, 0)).astype(np.int8)
     fig = plt.figure(figsize=(11, 6.2), dpi=dpi)
     gs = fig.add_gridspec(2, 2, height_ratios=[1, 0.06], left=0.03, right=0.97, top=0.82, bottom=0.12, wspace=0.10, hspace=0.05)
@@ -111,6 +127,10 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110):
         for s in ax.spines.values(): s.set_visible(True); s.set_edgecolor(P.GRID)
     im = axL.imshow(prob, cmap=P.PROB_CMAP, vmin=0, vmax=1, interpolation="nearest")
     axR.imshow(burn, cmap=P.BURN_CMAP, vmin=0, vmax=2, interpolation="nearest")
+    if water is not None:
+        from matplotlib.colors import ListedColormap
+        for ax in (axL, axR): ax.imshow(np.ma.masked_where(~water, water), cmap=ListedColormap(["#a9c8e8"]), alpha=0.9, interpolation="nearest")
+    for ax in (axL, axR): ax.set_xlim(c0 - 0.5, c1 - 0.5); ax.set_ylim(r1 - 0.5, r0 - 0.5)
     if prev.any():                                   # yesterday's perimeter: outline of the lightly-smoothed mask, so speckled detections read as one front
         outline = _blur(prev, 2.5)
         for ax in (axL, axR): ax.contour(outline, levels=[0.22], colors=[P.INK_2], linewidths=0.9, alpha=0.85)
@@ -126,23 +146,30 @@ def render_frame(k, masks, probs, dates, name, placeholder, dpi=110):
     m = day_auc_pr(prob, cur, prev)
     if m: stats += f"   ·   AUC-PR today {m[0]:.3f} (persistence {m[1]:.3f})"
     fig.text(0.03, 0.895, stats, fontsize=9.5, color=P.INK_2)
+    if hold_text: fig.text(0.97, 0.94, hold_text, fontsize=11, fontweight="bold", color=P.ORANGE, ha="right")
+    fig.text(0.97, 0.895, f"window {(c1 - c0) * 0.375:.0f} × {(r1 - r0) * 0.375:.0f} km", fontsize=8.5, color=P.MUTED, ha="right")
     fig.text(0.97, 0.03, "fire-spread-forecast-v1-small", fontsize=8, color=P.MUTED, ha="right")
     if placeholder: fig.text(0.03, 0.03, "placeholder probabilities: persistence + blurred halo around yesterday's fire, not a model", fontsize=8, color=P.MUTED)
     fig.canvas.draw(); rgb = np.asarray(fig.canvas.buffer_rgba())[..., :3].copy(); plt.close(fig)
     return rgb
 
 
-def render(masks, probs, dates, name, out_dir, placeholder=True, fps=2.0, days=None, dpi=110, gif=True):
-    """Writes <out_dir>/frames/day_XX_<date>.png for each day and <out_dir>/replay.gif. Returns list of frame paths."""
-    P.style(); T = len(masks); days = days or range(1, T)
+def render(masks, probs, dates, name, out_dir, placeholder=True, fps=2.0, days=None, dpi=110, gif=True, hold=None, hold_text=None, hold_s=6.0):
+    """Writes <out_dir>/frames/day_XX_<date>.png for each day and <out_dir>/replay.gif. Returns list of frame paths.
+    hold: replay day k to pause on for hold_s seconds, with hold_text in its header."""
+    P.style(); T = len(masks); days = list(days or range(1, T))
+    if WATER_MASK.get(name) is not None:
+        wp = float(np.abs(probs[:, WATER_MASK[name]]).max()) if WATER_MASK[name].any() else 0.0
+        print(f"  water mask: {int(WATER_MASK[name].sum())} px; max P over water = {wp:.4f} ({'OK, masked' if wp == 0 else 'NOT masked'})", flush=True)
     os.makedirs(os.path.join(out_dir, "frames"), exist_ok=True); frames, paths = [], []
     for k in days:
-        rgb = render_frame(k, masks, probs, dates, name, placeholder, dpi)
+        rgb = render_frame(k, masks, probs, dates, name, placeholder, dpi, hold_text if k == hold else None)
         p = os.path.join(out_dir, "frames", f"day_{k:02d}_{dates[k]}.png"); Image.fromarray(rgb).save(p)
         frames.append(Image.fromarray(rgb)); paths.append(p)
         print(f"  frame {k}/{T - 1} {dates[k]}  burning={int(masks[k].sum())}", flush=True)
     if gif and frames:
         dur = [int(1000 / fps)] * len(frames); dur[-1] *= 3                    # hold the last day
+        if hold in days: dur[days.index(hold)] = int(hold_s * 1000)             # and the chosen day
         pal = [f.quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE) for f in frames]
         gp = os.path.join(out_dir, "replay.gif")
         pal[0].save(gp, save_all=True, append_images=pal[1:], duration=dur, loop=0, optimize=False)
@@ -164,6 +191,7 @@ def main(argv=None):
     ap.add_argument("--fps", type=float, default=2.0); ap.add_argument("--dpi", type=int, default=110)
     ap.add_argument("--days", help="day range to render, e.g. 3-12 (1-based; day 0 has no forecast)")
     ap.add_argument("--frames-only", action="store_true", help="skip the GIF")
+    ap.add_argument("--hold", type=int, help="replay day k (forecast FOR day k) to pause on"); ap.add_argument("--hold-text", default=None); ap.add_argument("--hold-s", type=float, default=6.0)
     a = ap.parse_args(argv)
     masks, dates, name = load_fire(a.fire); T = len(masks)
     if T < 2: sys.exit(f"{name}: need at least 2 days, found {T}")
@@ -171,7 +199,7 @@ def main(argv=None):
     if a.probs: probs, placeholder = align_probs(np.load(a.probs), T, masks.shape[1:]), False
     else: probs, placeholder = placeholder_probs(masks), True
     out = a.out or os.path.join("out", "replay", name.replace("/", "_"))
-    render(masks, probs, dates, name, out, placeholder, a.fps, parse_days(a.days, T), a.dpi, gif=not a.frames_only)
+    render(masks, probs, dates, name, out, placeholder, a.fps, parse_days(a.days, T), a.dpi, gif=not a.frames_only, hold=a.hold, hold_text=a.hold_text, hold_s=a.hold_s)
 
 
 if __name__ == "__main__":
