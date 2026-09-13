@@ -159,7 +159,9 @@ def ngfs_realearth(products=("NGFS-SCENE-CONUS-WEST", "NGFS-SCENE-CONUS-EAST"), 
             fc = get(f"/api/shapes?products={prod}&date={iso[:10]}&time={urllib.parse.quote(iso[11:19])}&bounds=&merge=none&notifications=false")
             for f in fc.get("features") or []:
                 if not f or not f.get("geometry"): continue
-                p = f.get("properties") or {}; lon, lat = f["geometry"]["coordinates"][:2]
+                p = f.get("properties") or {}; c = f["geometry"].get("coordinates") or []
+                if len(c) < 2 or not all(isinstance(v, (int, float)) for v in c[:2]): continue
+                lon, lat = c[:2]
                 det = {"lat": round(lat, 5), "lng": round(lon, 5), "frp": p.get("FEATURE_FRP", p.get("FRP")), "tracking_id": p.get("FEATURE_TRACKING_ID"), "acq": p.get("ACQ_DATE_TIME"),
                        "type_desc": p.get("TYPE_DESCRIPTION"), "confidence": p.get("CONFIDENCE"), "sat": "GOES-18" if "WEST" in prod else "GOES-19", "state": p.get("STATE"), "county": p.get("COUNTY"),
                        "incident_name": None if p.get("KNOWN_INCIDENT_NAME") in ("NULL", None, "") else p.get("KNOWN_INCIDENT_NAME"), "fuel": p.get("FUEL"), "land_cover": p.get("LAND_COVER")}
@@ -218,6 +220,21 @@ LOGO = ('<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/sv
         '<path d="M54.6 34.7 A 27.5 27.5 0 1 1 54.6 85.3" stroke="#8A8A85" stroke-width="5" stroke-linecap="round"/><path d="M50.6 23.8 A 39 39 0 1 1 50.6 96.2" stroke="#D85A30" stroke-width="8" stroke-linecap="round"/></svg>')
 
 
+def focus_bounds(events, pad_km=6.0):
+    """[[S, W], [N, E]] around today's fire + the forecast footprint (P > 0.05) + the verification outline, not the whole tile."""
+    S_, W_, N_, E_ = 90.0, 180.0, -90.0, -180.0
+    for ev in events:
+        g = Grid(ev["bbox"], *ev["mask"].shape); on = ev["mask"] | (ev["prob"] > 0.05)
+        if ev.get("new_next") is not None: on |= ev["new_next"]
+        rr, cc = np.nonzero(on)
+        if not rr.size: continue
+        (n, w), (s, e) = g.to_ll(rr.min(), cc.min()), g.to_ll(rr.max(), cc.max())
+        S_, W_, N_, E_ = min(S_, s), min(W_, w), max(N_, n), max(E_, e)
+    if S_ > N_: return [[min(e["bbox"][1] for e in events), min(e["bbox"][0] for e in events)], [max(e["bbox"][3] for e in events), max(e["bbox"][2] for e in events)]]
+    dlat = pad_km / 111.32; dlon = dlat / max(math.cos(math.radians((S_ + N_) / 2)), 1e-6)
+    return [[S_ - dlat, W_ - dlon], [N_ + dlat, E_ + dlon]]
+
+
 def build(events, network, why, threshold, territory, n_active, live, live_state, wind, out):
     m = folium.Map(location=(np.mean([e["bbox"][1] + e["bbox"][3] for e in events]) / 2, np.mean([e["bbox"][0] + e["bbox"][2] for e in events]) / 2), zoom_start=10, tiles=None, control_scale=True)
     folium.TileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", name="Satellite", attr="Esri, Maxar, Earthstar Geographics").add_to(m)
@@ -265,8 +282,7 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
     # live NGFS detections (points; the layer is refreshed in the browser)
     fg_live = folium.FeatureGroup(name="Live — NGFS detections (GOES)", show=True); fg_live.add_to(m)
     folium.LayerControl(collapsed=True, position="topright").add_to(m); plugins.Fullscreen(position="topleft").add_to(m)
-    fit = [[min(e["bbox"][1] for e in events) - 0.05, min(e["bbox"][0] for e in events) - 0.05], [max(e["bbox"][3] for e in events) + 0.05, max(e["bbox"][2] for e in events) + 0.05]]
-    m.fit_bounds(fit)
+    fit = focus_bounds(events); m.fit_bounds(fit)
 
     # ---- sidebar content
     total = sum(r["exposure_usd"] for ev in events for r in ev["rows"]); n_exposed = sum(1 for ev in events if any(r["exposure_usd"] > 0 and r["worst"] >= threshold for r in ev["rows"]))
