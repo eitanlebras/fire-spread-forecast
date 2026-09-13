@@ -224,11 +224,11 @@ def build_map(events, wind, fuel, panels, placeholder, territory, threshold, net
         folium.PolyLine([(lat, lon), (lat2, lon2)], color=P.INK_2, weight=2, opacity=0.8, tooltip=f"wind {spd:.1f} m/s toward {deg:.0f}°").add_to(fg_wind)
         folium.RegularPolygonMarker((lat2, lon2), number_of_sides=3, radius=5, rotation=deg - 90, color=P.INK_2, fill_color=P.INK_2, fill_opacity=0.9, weight=1).add_to(fg_wind)
     fg_wind.add_to(m)
-    fg_fire = folium.FeatureGroup(name=f"Burning today — VIIRS detections (grey){tag('fire')}", show=True)
+    fg_fire = folium.FeatureGroup(name=f"Burning today — VIIRS detections (charcoal){tag('fire')}", show=True)
     for ev in events:
         g = Grid(ev["bbox"], *ev["mask"].shape); rings = mask_polygons(ev["mask"], g)
         if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiPolygon", "coordinates": [[r] for r in rings]}},
-                                 style_function=lambda _: {"color": P.INK, "weight": 1.5, "opacity": 0.95, "fillColor": "#3a3a37", "fillOpacity": 0.7},
+                                 style_function=lambda _: {"color": P.INK, "weight": 1.5, "opacity": 0.95, "fillColor": P.BURNING, "fillOpacity": 0.7},
                                  tooltip=f"{ev['name']} · burning {ev['date']} ({ev.get('n_today', '?')} px)").add_to(fg_fire)
     fg_fire.add_to(m)
     fg_prob = folium.FeatureGroup(name=f"Where it spreads in 24 h — the model, growth region only{tag('probs')}", show=True)

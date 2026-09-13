@@ -23,7 +23,8 @@ SEQ_BLUE = ["#cde2fb", "#b7d3f6", "#9ec5f4", "#86b6ef", "#6da7ec", "#5598e7", "#
 PROB_CMAP = LinearSegmentedColormap.from_list("fsf_prob", [(*to_rgb(SEQ_BLUE[0]), 0.0)] + SEQ_BLUE)
 PROB_CMAP_CSS = f"linear-gradient(90deg, rgba({','.join(str(int(255 * c)) for c in to_rgb(SEQ_BLUE[0]))},0), {SEQ_BLUE[3]}, {SEQ_BLUE[-1]})"   # same ramp for HTML legends
 
-WATER = "#a3b8a8"   # grey-green: distinct from the blue probability ramp and from the burn greys
+WATER = "#a3b8a8"     # grey-green: distinct from the blue probability ramp and from the burn greys
+BURNING = "#3D2420"   # warm charcoal for the burning-today fill: recedes behind the blue and orange without reading as a void
 
 # actual-burn panel: 0 = unburned (surface), 1 = burning yesterday and today (persisted), 2 = newly burning today
 BURN_COLORS = [SURFACE, AXIS, ORANGE]
