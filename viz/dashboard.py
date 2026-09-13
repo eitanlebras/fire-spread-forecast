@@ -178,7 +178,7 @@ def fetch_live():
     try:
         dets, newest = ngfs_realearth(); src = "RealEarth API (CIMSS/SSEC)"
     except Exception as e:
-        print(f"NGFS RealEarth pull failed ({e}); using the public mirror", file=sys.stderr)
+        print(f"NGFS RealEarth pull failed ({type(e).__name__}: {e}); using the public mirror", file=sys.stderr)
         try: dets, newest = ngfs_mirror(); src = "public mirror of the CIMSS/SSEC feed"
         except Exception as e2: print(f"NGFS mirror failed too ({e2})", file=sys.stderr); return None
     return {"detections": dets, "newest": newest, "source": src, "pulled_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
@@ -211,7 +211,7 @@ html,body{height:100%;margin:0;background:var(--page);color:var(--ink);font:13px
 #fl-foot{position:absolute;left:12px;bottom:12px;z-index:1000;background:rgba(252,252,251,.92);padding:5px 9px;border-radius:4px;font-size:11px;color:var(--ink2)}
 .leaflet-control-layers{font-size:12px}
 .leaflet-top.leaflet-left{top:0}
-@media (max-width:900px){#fl-map-wrap{position:static;width:100%;height:60vh;margin-top:56px}#fl-side{position:static;width:100%}#fl-head .meta.sec{display:none}}
+@media (max-width:900px){ #fl-map-wrap{position:static;width:100%;height:60vh;margin-top:56px}#fl-side{position:static;width:100%}#fl-head .meta.sec{display:none}}
 """
 
 LOGO = ('<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M58.5 45.6 A 16 16 0 1 1 58.5 74.4" stroke="#8A8A85" stroke-width="5" stroke-linecap="round"/>'
