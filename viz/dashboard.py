@@ -266,7 +266,7 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
     for ev in events:
         rings = mask_polygons(ev["mask"], Grid(ev["bbox"], *ev["mask"].shape))
         if rings: folium.GeoJson({"type": "Feature", "properties": {}, "geometry": {"type": "MultiPolygon", "coordinates": [[r] for r in rings]}},
-                                 style_function=lambda _: {"color": P.INK, "weight": 1.5, "opacity": 0.95, "fillColor": "#3a3a37", "fillOpacity": 0.7},
+                                 style_function=lambda _: {"color": P.INK, "weight": 1.5, "opacity": 0.95, "fillColor": P.BURNING, "fillOpacity": 0.7},
                                  tooltip=f"{ev['name']} · burning {ev['date']} · {ev['n_today']} px (VIIRS)").add_to(fg_fire)
     fg_fire.add_to(m)
     fg_prob = folium.FeatureGroup(name="Forecast — next 24 hours", show=True)
@@ -312,7 +312,7 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
             f"<div class='meta sec'><b>{n_active}</b> active fires in the record that day · <b>{n_exposed}</b> with asset exposure · <b>{X.usd(total)}</b> total in queue</div>"
             f"<div class='live'><span class='dot'></span><span id='fl-live-n'>NGFS live</span></div></div>")
     foot = (f"<div id='fl-foot'>{MODEL} · {dates} · <span style='display:inline-block;width:70px;height:9px;vertical-align:middle;background:{P.PROB_CMAP_CSS}'></span> P(burn in 24 h) 0 → 1, within {BUFFER_KM:g} km of today's fire, growth region only · "
-            f"<span style='display:inline-block;width:10px;height:10px;vertical-align:middle;background:{P.WATER}'></span> water · <span style='display:inline-block;width:10px;height:10px;vertical-align:middle;background:#3a3a37'></span> burning now · "
+            f"<span style='display:inline-block;width:10px;height:10px;vertical-align:middle;background:{P.WATER}'></span> water · <span style='display:inline-block;width:10px;height:10px;vertical-align:middle;background:{P.BURNING}'></span> burning now · "
             f"<span style='display:inline-block;width:18px;height:3px;vertical-align:middle;background:{P.ORANGE}'></span> burned next day · data: HIFLD, VIIRS (WFTS), GridMET/GFS, NGFS</div>")
     js_groups = {c: [g.get_name() for g in grp] for c, grp in groups.items()}
     js = f"""
