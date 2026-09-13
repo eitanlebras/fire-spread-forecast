@@ -5,7 +5,13 @@
 Next-day wildfire spread as per-pixel probability: today's active-fire mask + terrain, weather, fuel and land cover on a
 375 m grid → P(active fire in the next 24 h) for every pixel. Built at the Frontier Cascadia hackathon, September 2026.
 
-**Live demo map:** https://eitanlebras.github.io/fire-spread-forecast/
+**Live dashboard:** https://eitanlebras.github.io/fire-spread-forecast/
+
+<p align="center">
+  <a href="https://eitanlebras.github.io/fire-spread-forecast/"><img src="demo/redding/dashboard.png" alt="Fireline dashboard: Redding fire, forecast for 2021-09-24, ranked asset queue, model reasons, live NGFS detections" width="900"></a>
+</p>
+
+<p align="center"><sub>Fireline dashboard for the Redding fire (today 2021-09-23, forecast 2021-09-24): tonight's ranked queue with actions, the model's reasons from the day's weather bands, and what NGFS sees burning right now.</sub></p>
 
 <p align="center">
   <img src="assets/fire_25294746_day12_charcoal.png" alt="Fire 25294746, day 12: model forecast (blue) vs. observed next-day fire (orange)" width="720">
