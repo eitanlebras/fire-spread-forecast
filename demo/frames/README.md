@@ -3,7 +3,7 @@
 One PNG per today `t` for the two viable test fires. Title carries: day, dates, burning-today px, new-fire px, AUC-PR of
 the forecast on the growth region, share of the observed new fire inside the >0.4 zone, and the direction error between
 the model's P-mass (within 6 km) and the observed new fire. Layers: hillshade (elevation band), grey-green = water,
-dark grey = burning today, blue = model P(burn in 24 h) on the growth region within the feathered 10 km buffer,
+charcoal = burning today, blue = model P(burn in 24 h) on the growth region within the feathered 10 km buffer,
 orange = new fire observed the next day.
 
 Shortlist (new fire >= 30 px):
