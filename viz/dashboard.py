@@ -315,7 +315,6 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
     side = (f"<div class='fl-panel'><h2>Tonight's queue <span>{dates}</span></h2>{queue_html(events, threshold, why)}"
             f"<div class='muted' style='margin-top:8px;font-size:11px'>exposure = P(burn) × replacement value × vulnerability × exposed miles · HIFLD public infrastructure, illustrative values</div></div>"
             f"<div class='fl-panel'><h2>Why this ranks here <span>{H.escape(ev0['name'])}</span></h2>{why_html(ev0, w0, threshold)}</div>"
-            f"<div class='fl-panel'><h2>Track record <span>held-out test set</span></h2>{track}</div>"
             f"<div class='fl-panel'><h2>Burning right now <span id='fl-live-when'>NGFS · loading</span></h2><div id='fl-live'></div>"
             f"<div class='muted' style='margin-top:8px;font-size:11px'>GOES-18/19 scene detections from NOAA's Next Generation Fire System (CIMSS/SSEC), grouped by tracked fire, {live_state} only, refreshed every 5 min. "
             f"The forecast above is a replay of a held-out 2021 fire; running the model on these live fires needs the WFTS input stack (VIIRS, GridMET, GFS, terrain, land cover), not wired yet.</div></div>")
