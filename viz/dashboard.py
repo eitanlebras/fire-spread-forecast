@@ -105,14 +105,14 @@ def why_html(ev, w, threshold):
     ]
     if "verified_px" in w and w["verified_px"]:
         rows.append(f"Verified {ev['date_next']}: <b>{w['verified_share']:.0%}</b> of the {w['verified_px']} new-fire pixels fell inside the >{threshold:.0%} zone; observed direction {compass(w['verified_dir'])} vs forecast {compass(w['dir'])}")
-    return "".join(f"<div class='row'>{r}</div>" for r in rows)
+    return "".join(f"<div class='why'>{r}</div>" for r in rows)
 
 # ---------------------------------------------------------------- queue
 
 def action_line(r, w, threshold):
     p = r["worst"]; kind = r["kind"]
     when = "tonight" if p >= 0.5 else "before tomorrow's burn period"
-    wind = f" Wind {w['fc_wind_mph']:.0f} mph from the {compass(w['fc_from'])} tomorrow{', veering ' + str(int(w['veer'])) + '°' if w and w['veer'] >= 30 else ''}." if w else ""
+    wind = f" Wind {w['fc_wind_mph']:.0f} mph from the {compass(w['fc_from'])} tomorrow{', veering ' + str(int(w['veer'])) + '°' if w['veer'] >= 30 else ''}." if w and p >= threshold else ""
     if kind == "substation":
         act = f"De-energize and clear defensible space {when}." if p >= threshold else "Stage a crew; re-check at the next forecast." if p >= 0.2 else "Monitor."
     elif kind == "line":
@@ -154,7 +154,7 @@ def ngfs_realearth(products=("NGFS-SCENE-CONUS-WEST", "NGFS-SCENE-CONUS-EAST"), 
     dets, newest = {}, None
     for prod in products:
         times = (get(f"/api/products?products={prod}") or [{}])[0].get("times") or []
-        for ts in times[-frames:]:
+        for ts in [t for t in times[-frames:] if "." in t]:
             d, t = ts.split("."); iso = f"{d[:4]}-{d[4:6]}-{d[6:8]}T{t[:2]}:{t[2:4]}:{t[4:6]}Z"; newest = max(newest or "", iso)
             fc = get(f"/api/shapes?products={prod}&date={iso[:10]}&time={urllib.parse.quote(iso[11:19])}&bounds=&merge=none&notifications=false")
             for f in fc.get("features") or []:
@@ -197,10 +197,10 @@ html,body{height:100%;margin:0;background:var(--page);color:var(--ink);font:13px
 #fl-head .dot{width:8px;height:8px;border-radius:50%;background:#1baf7a;box-shadow:0 0 0 3px rgba(27,175,122,.18)}
 #fl-map-wrap{position:fixed;top:56px;left:0;width:65%;bottom:0}
 #fl-side{position:fixed;top:56px;right:0;width:35%;bottom:0;overflow-y:auto;background:var(--page);border-left:1px solid var(--line);padding:14px 18px 24px;box-sizing:border-box}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
-.panel h2{font:600 11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
-.panel h2 span{float:right;letter-spacing:0;text-transform:none;font-weight:400}
-.muted{color:var(--muted)} .row{padding:5px 0;border-top:1px solid var(--line)} .row:first-child{border-top:0;padding-top:0}
+.fl-panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.fl-panel h2{font:600 11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.fl-panel h2 span{float:right;letter-spacing:0;text-transform:none;font-weight:400}
+.muted{color:var(--muted)} .why{padding:5px 0;border-top:1px solid var(--line)} .why:first-child{border-top:0;padding-top:0}
 .q{padding:7px 0;border-top:1px solid var(--line)} .q:first-child{border-top:0;padding-top:0}
 .qh{display:flex;justify-content:space-between;gap:8px;align-items:baseline} .qn{white-space:nowrap;color:var(--ink2)}
 .qa{color:var(--ink2);margin-top:2px;padding-left:14px;text-indent:-14px}
@@ -265,7 +265,8 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
     # live NGFS detections (points; the layer is refreshed in the browser)
     fg_live = folium.FeatureGroup(name="Live — NGFS detections (GOES)", show=True); fg_live.add_to(m)
     folium.LayerControl(collapsed=True, position="topright").add_to(m); plugins.Fullscreen(position="topleft").add_to(m)
-    m.fit_bounds([[min(e["bbox"][1] for e in events) - 0.05, min(e["bbox"][0] for e in events) - 0.05], [max(e["bbox"][3] for e in events) + 0.05, max(e["bbox"][2] for e in events) + 0.05]])
+    fit = [[min(e["bbox"][1] for e in events) - 0.05, min(e["bbox"][0] for e in events) - 0.05], [max(e["bbox"][3] for e in events) + 0.05, max(e["bbox"][2] for e in events) + 0.05]]
+    m.fit_bounds(fit)
 
     # ---- sidebar content
     total = sum(r["exposure_usd"] for ev in events for r in ev["rows"]); n_exposed = sum(1 for ev in events if any(r["exposure_usd"] > 0 and r["worst"] >= threshold for r in ev["rows"]))
@@ -278,11 +279,11 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
              f"<div class='muted' style='margin-top:8px;font-size:11px'>{tr['fires']} held-out fires, WildfireSpreadTS 2021 test split, 3 seeds. Detached spot fires: {tr['spot_hits']} predicted — never read a blue lobe as a spot-fire call.</div>")
     live_json = json.dumps(live or {"detections": [], "newest": None, "source": None, "pulled_utc": None})
     dates = f"today {ev0['date']} → forecast {ev0['date_next']}"
-    side = (f"<div class='panel'><h2>Tonight's queue <span>{dates}</span></h2>{queue_html(events, threshold, why)}"
+    side = (f"<div class='fl-panel'><h2>Tonight's queue <span>{dates}</span></h2>{queue_html(events, threshold, why)}"
             f"<div class='muted' style='margin-top:8px;font-size:11px'>exposure = P(burn) × replacement value × vulnerability × exposed miles · HIFLD public infrastructure, illustrative values</div></div>"
-            f"<div class='panel'><h2>Why this ranks here <span>{H.escape(ev0['name'])}</span></h2>{why_html(ev0, w0, threshold)}</div>"
-            f"<div class='panel'><h2>Track record <span>held-out test set</span></h2>{track}</div>"
-            f"<div class='panel'><h2>Burning right now <span id='fl-live-when'>NGFS · loading</span></h2><div id='fl-live'></div>"
+            f"<div class='fl-panel'><h2>Why this ranks here <span>{H.escape(ev0['name'])}</span></h2>{why_html(ev0, w0, threshold)}</div>"
+            f"<div class='fl-panel'><h2>Track record <span>held-out test set</span></h2>{track}</div>"
+            f"<div class='fl-panel'><h2>Burning right now <span id='fl-live-when'>NGFS · loading</span></h2><div id='fl-live'></div>"
             f"<div class='muted' style='margin-top:8px;font-size:11px'>GOES-18/19 scene detections from NOAA's Next Generation Fire System (CIMSS/SSEC), grouped by tracked fire, {live_state} only, refreshed every 5 min. "
             f"The forecast above is a replay of a held-out 2021 fire; running the model on these live fires needs the WFTS input stack (VIIRS, GridMET, GFS, terrain, land cover), not wired yet.</div></div>")
     head = (f"<div id='fl-head'><div class='brand'>{LOGO}Fireline</div>"
@@ -296,7 +297,8 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
     js = f"""
     document.addEventListener("DOMContentLoaded", function () {{
       var map = {m.get_name()}, liveGroup = {fg_live.get_name()}, LIVE = {live_json}, STATE = {json.dumps(live_state)};
-      var wrap = document.getElementById('fl-map-wrap'); wrap.appendChild(document.getElementById('{m.get_name()}')); wrap.appendChild(document.getElementById('fl-foot')); map.invalidateSize();
+      var wrap = document.getElementById('fl-map-wrap'); wrap.appendChild(document.getElementById('{m.get_name()}')); wrap.appendChild(document.getElementById('fl-foot'));
+      map.invalidateSize(); map.fitBounds({json.dumps(fit)}, {{padding: [20, 20]}});
       var groups = {{{", ".join(f"{c}: [{', '.join(n)}]" for c, n in js_groups.items())}}}; for (var k in groups) groups[k].forEach(function (g) {{ if (k !== 'utility' && map.hasLayer(g)) map.removeLayer(g); }});
       function pad(n) {{ return (n < 10 ? '0' : '') + n; }}
       function clock() {{ var d = new Date(); document.getElementById('fl-clock').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' UTC';
