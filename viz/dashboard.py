@@ -222,10 +222,15 @@ LOGO = ('<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/sv
 
 def focus_bounds(events, pad_km=6.0):
     """[[S, W], [N, E]] around today's fire + the forecast footprint (P > 0.05) + the verification outline, not the whole tile."""
+    from scipy import ndimage as ndi
     S_, W_, N_, E_ = 90.0, 180.0, -90.0, -180.0
     for ev in events:
         g = Grid(ev["bbox"], *ev["mask"].shape); on = ev["mask"] | (ev["prob"] > 0.05)
         if ev.get("new_next") is not None: on |= ev["new_next"]
+        lab, n = ndi.label(ndi.binary_dilation(ev["mask"], iterations=3))          # detached fragments far from the main body are left out of the frame
+        if n > 1:
+            big = 1 + int(np.argmax(ndi.sum(ev["mask"], lab, range(1, n + 1)))); cy, cx = ndi.center_of_mass(lab == big)
+            yy, xx = np.mgrid[:on.shape[0], :on.shape[1]]; on &= np.hypot((yy - cy) * g.km_per_px, (xx - cx) * g.km_per_px * math.cos(math.radians(g.center[0]))) <= 15.0
         rr, cc = np.nonzero(on)
         if not rr.size: continue
         (n, w), (s, e) = g.to_ll(rr.min(), cc.min()), g.to_ll(rr.max(), cc.max())
