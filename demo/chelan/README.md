@@ -9,7 +9,7 @@ Caveat for the utility story: on this day the fire is in wilderness. Nothing of 
 exposure story, this fire for the "the model knows where it goes" replay.
 
 Files: `demo_map.html` (same layers as Redding), `exposure_ranked.*` (09-07 forecast, unbuffered raster), `replay.gif` (all 40 forecast days, forecast panel masked to the growth region so nothing is shown inside yesterday's fire,
-panels cropped to today's fire + new fire with 20% margin, water drawn light blue and verified P=0 on it, 6 s hold on the 2021-09-07 frame
+panels cropped to today's fire + new fire with 20% margin, water drawn grey-green and verified P=0 on it, 6 s hold on the 2021-09-07 frame
 with growth-region AUC-PR 0.625, 72% overlap and 2.1 km max reach in the header; every frame's stats line shows growth-region AUC-PR against persistence's floor, never the full-mask number), `replay_hold_day30_forecast_2021-09-07.png` (that frame),
 `forecast_dates.json`. Model: `wfts_only` baseline checkpoint; swap via `fsf.predict`.
 
