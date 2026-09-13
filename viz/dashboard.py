@@ -128,9 +128,21 @@ def queue_html(events, threshold, why, n=5):
     out = []
     for i, (r, ev) in enumerate(rows, 1):
         head = f"<b>{i}. {H.escape(r['name'])}</b> <span class='muted'>{'substation' if r['kind'] == 'substation' else 'line' if r['kind'] == 'line' else 'stand'}, {r['voltage_kv']:.0f} kV</span>" if r["kind"] != "stand" else f"<b>{i}. {H.escape(r['name'])}</b>"
-        out.append(f"<div class='q'><div class='qh'>{head}<span class='qn'>{r['worst']:.0%} · <b>{X.usd(r['exposure_usd'])}</b></span></div>"
+        ll = asset_latlon(ev, r); at = f" data-lat='{ll[0]:.5f}' data-lng='{ll[1]:.5f}'" if ll else ""
+        out.append(f"<div class='q'{at} title='show on map'><div class='qh'>{head}<span class='qn'>{r['worst']:.0%} · <b>{X.usd(r['exposure_usd'])}</b></span></div>"
                    f"<div class='qa'>→ {action_line(r, why.get(ev['name']), threshold)}</div></div>")
     return "".join(out)
+
+
+def asset_latlon(ev, r):
+    """WGS84 point for a queue row: worst segment's midpoint for a line, the point for a substation, a representative point for a stand."""
+    R = ev["raster"]
+    try:
+        if r["kind"] == "line": pt = max((s for s in ev["segs"] if s["properties"]["circuit"] == r["name"]), key=lambda s: s["properties"]["p_max"])["geom"].interpolate(0.5, normalized=True)
+        elif r["kind"] == "substation": pt = next(s["geom"] for s in ev["subs"] if s["properties"]["name"] == r["name"])
+        else: pt = next(s["geom"] for s in ev["stands"] if s["properties"]["name"] == r["name"]).representative_point()
+    except (StopIteration, ValueError): return None
+    lon, lat = R.to_wgs.transform(pt.x, pt.y); return lat, lon
 
 # ---------------------------------------------------------------- live NGFS
 
@@ -203,7 +215,7 @@ html,body{height:100%;margin:0;background:var(--page);color:var(--ink);font:13px
 .fl-panel h2{font:600 11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
 .fl-panel h2 span{float:right;letter-spacing:0;text-transform:none;font-weight:400}
 .muted{color:var(--muted)} .why{padding:5px 0;border-top:1px solid var(--line)} .why:first-child{border-top:0;padding-top:0}
-.q{padding:7px 0;border-top:1px solid var(--line)} .q:first-child{border-top:0;padding-top:0}
+.q{padding:7px 0;border-top:1px solid var(--line)} .q[data-lat]{cursor:pointer} .q[data-lat]:hover{background:#f3f2ee;margin:0 -8px;padding-left:8px;padding-right:8px} .q.on{background:#eef4fc;margin:0 -8px;padding-left:8px;padding-right:8px} .q:first-child{border-top:0;padding-top:0}
 .qh{display:flex;justify-content:space-between;gap:8px;align-items:baseline} .qn{white-space:nowrap;color:var(--ink2)}
 .qa{color:var(--ink2);margin-top:2px;padding-left:14px;text-indent:-14px}
 .tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
@@ -321,6 +333,12 @@ def build(events, network, why, threshold, territory, n_active, live, live_state
       var wrap = document.getElementById('fl-map-wrap'); wrap.appendChild(document.getElementById('{m.get_name()}')); wrap.appendChild(document.getElementById('fl-foot'));
       map.invalidateSize(); map.fitBounds({json.dumps(fit)}, {{padding: [20, 20]}});
       var groups = {{{", ".join(f"{c}: [{', '.join(n)}]" for c, n in js_groups.items())}}}; for (var k in groups) groups[k].forEach(function (g) {{ if (k !== 'utility' && map.hasLayer(g)) map.removeLayer(g); }});
+      var pins = groups.utility ? groups.utility[1] : null;
+      document.querySelectorAll('#fl-side .q[data-lat]').forEach(function (el) {{ el.onclick = function () {{
+        var lat = +el.dataset.lat, lng = +el.dataset.lng; document.querySelectorAll('#fl-side .q').forEach(function (e) {{ e.classList.remove('on'); }}); el.classList.add('on');
+        map.flyTo([lat, lng], 13, {{duration: 0.8}});
+        if (pins) pins.eachLayer(function (l) {{ if (l.getLatLng && Math.abs(l.getLatLng().lat - lat) < 1e-4 && Math.abs(l.getLatLng().lng - lng) < 1e-4) setTimeout(function () {{ l.openPopup(); }}, 900); }});
+      }}; }});
       function pad(n) {{ return (n < 10 ? '0' : '') + n; }}
       function clock() {{ var d = new Date(); document.getElementById('fl-clock').textContent = pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' UTC';
         var nx = new Date(Math.ceil((d.getTime() + 1) / 300000) * 300000); document.getElementById('fl-next').textContent = pad(nx.getUTCHours()) + ':' + pad(nx.getUTCMinutes()); }}
